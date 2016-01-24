@@ -41,8 +41,9 @@
 							<li><a href="index.html" style="color:yellow">Home</a></li>
 							<li class="active"><a href="about.html">About</a></li>
                             <li><a href="features.html" style="color:yellow">Features</a></li>
+                            <li><a href="about.html" style="color:yellow">Publications</a></li>
                             <li><a href="index.html#download" style="color:yellow">Download</a></li>
-							<li><a href="index.html#poweredby" style="color:yellow">PoweredBy</a></li>
+                            <li><a href="news.html" style="color:yellow">News</a></li>
                             <li><a href="index.html#contact" style="color:yellow">Contact</a></li>
 						</ul>
 					</nav>
@@ -61,26 +62,32 @@
                                 <div style="margin-top: -47px"></div>
                                 <header id="about">
                                     <h2>About RHEEM</h2>
-                                    <span class="byline">A general solution for your personal big data analytics</span>
+                                    <span class="byline">A general solution for personalized big data analytics</span>
                                 </header>
-                                <div style="margin-top:-20px"></div>
-                                <p align="justify"> <strong>RHEEM</strong> is an agile and easy-to-use system for big data analytics. It provides an abstraction on top of 
-                                existing data processing platforms. It allows users to easily specify their data analytics tasks with easy-to-use interfaces, provides 
-                                developers with opportunities to optimize performance in different ways, and can run on any data processing platform, such as PostgreSQL, 
-                                Spark, or Hadoop MapReduce. RHEEM abstraction is fully based on user defined functions (UDFs) to allow users to focus on their applications logics 
-                                rather than on physical details. Users can now implement and deploy their big data analytic tasks on a matter of a couple of days.
-                                <a href="features.html">See features...</a>
+                                <p align="justify" style="margin-top:-20px"> <strong>RHEEM</strong> is an agile and easy-to-use system for cross-platform big data analytics. It provides an abstraction on top of existing data processing platforms. It allows users to easily specify their data analytics tasks with easy-to-use interfaces, provides developers with opportunities to optimize performance in different ways, and can run on any data processing platform, such as PostgreSQL, Spark, or Hadoop MapReduce. RHEEM abstraction is fully based on user defined functions (UDFs) to allow users to focus on their applications logics rather than on physical details. Users can now implement and deploy their big data analytic tasks on a matter of a couple of days. The salient features of Rheem are cross-platform task execution, high performance, flexibility, and ease-of-use.
                                 </p>
-                                
-                                <header>
-		                        	<h2 style="font-size:200%; margin-top:30px">Publications</h2>
-	    	                    </header>
+                                <div style="margin-top: -10px"></div>
+                                <header id="pubs">
+                                    <h2 style="font-size:200%; margin-top:30px">Publications</h2>
+                                </header>
 	    	                    <ul>
 	    	                    	<li>
-	    	                    	<p style="font-size:110%; margin-top:-10px">
-	    	                    		<b>* BigDansing: A System for Big Data Cleansing</b><br>
-		    	                    	<a href="http://www.sigmod2015.org/">SIGMOD 2015</a>, Melbourne, Australia.
-		    	                    </p>
+                                        <p style="font-size:110%; margin-top:-10px">
+                                        <b>* Road to Freedom in Data Analytics </b><br>
+                                        <a href="http://edbticdt2016.labri.fr/">EDBT 2016</a>, Bordeaux, France. (vision paper)
+                                        </p>
+                                    </li>
+                                    <li>
+                                        <p style="font-size:110%; margin-top:-10px">
+                                        <b>* Lightning Fast and Space Efficient Inequality Joins </b><br>
+                                        <a href="http://vldb2016.persistent.com/">VLDB 2016</a>/<a href="http://www.vldb.org/pvldb/vol8.html">PVLDB 8(13)</a>, New Delhi, India.
+                                        </p>
+                                    </li>
+                                    <li>
+                                        <p style="font-size:110%; margin-top:-10px">
+                                            <b>* BigDansing: A System for Big Data Cleansing</b><br>
+                                            <a href="http://www.sigmod2015.org/">SIGMOD 2015</a>, Melbourne, Australia.
+                                            </p>
 	    	                    	</li>
 	    	                    </ul>
                             </section>
@@ -89,27 +96,27 @@
                         <div id="sidebar" class="4u" style="margin-top:-20px">
 	                        <section>
     	                        <header>
-        	                        <h2>Team</h2>
+        	                        <h2>QCRI Team</h2>
             	                </header>
                 	            <div style="font-size:110%; margin-top:-20px">
                     	            <ul class="list-unstyled" style="margin-left:15px">
-                        	            <li>
-                            	            <a href="link">Divy Agrawal</a>
-                                	    </li>
                         	            <li>
                             	            <a href="link">Sanjay Chawla</a>
                                 	    </li>
                         	            <li>
                             	            <a href="link">Ahmed Elmagarmid</a>
                                 	    </li>
+                                        <li>
+                                            <a href="link">Yasser Idris</a>
+                                        </li>
                         	            <li>
                             	            <a href="link">Zoi Kaoudi</a>
                                 	    </li>
+                                        <li>
+                                            <a href="link">Sebastian Kruse</a>
+                                        </li>
                         	            <li>
                             	            <a href="link">Mourad Ouzzani</a>
-                                	    </li>
-                        	            <li>
-                            	            <a href="link">Paolo Papotti</a>
                                 	    </li>
                         	            <li>
                             	            <a href="link">Jorge-Arnulfo Quian&eacute;-Ruiz</a>
@@ -117,11 +124,22 @@
                         	            <li>
                             	            <a href="link">Nan Tang</a>
                                 	    </li>
-                        	            <li>
-                            	            <a href="link">Mohammed Zaki</a>
-                                	    </li>
                 	                </ul>
                     	        </div>
+                                <header>
+                                <h2>Collaborators</h2>
+                                </header>
+                                <div style="font-size:110%; margin-top:-20px">
+                                <ul class="list-unstyled" style="margin-left:15px">
+                                <li>
+                                <a href="link">Divy Agrawal</a>
+                                </li>
+                                <li>
+                                    <a href="link">Paolo Papotti</a>
+                                </li>
+                                <li>
+                                    <a href="link">Mohammed Zaki</a>
+                                </li>
 	                        </section>
     	                </div>
 						<div style="margin-top:50px"></div>
