@@ -267,7 +267,8 @@
 
 	#header
 	{
-		position: relative;
+        /* <a href='http://www.123rf.com/profile_nicvw'>nicvw / 123RF Stock Photo</a> */
+        position: relative;
 		background: #ddd url(../images/header.jpg) no-repeat;
 		background-size: cover;
 	}
