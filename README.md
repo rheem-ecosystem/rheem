@@ -1,4 +1,0 @@
-Rheem
-=====
-
-Rheem Project

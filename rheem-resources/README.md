@@ -10,14 +10,60 @@ Rheem is an agile distributed data processing framework developed by the data an
 
 ### Prerequisite
 
-To be able to run and compile Rheem, the following software is needed.
+To be able to run a Rheem application, the following software is needed.
 - [Java 1.8](http://www.java.com/en/download/faq/develop.xml)
 - [Apache Maven](http://maven.apache.org)
+- Include the rheem jar files into your project.
 - Platforms to be employed, as of now:
     - Java
     - [Apache Spark](https://spark.apache.org/)
     - [Graphchi](https://github.com/GraphChi/graphchi-java)
+- Coming soon:
+    - [Postgres](www.postgresql.org)
+    - [Alluxio](http://www.alluxio.org/)
 
+### Download and Usage
+- You can download [the latest jar from here](http://da.qcri.org/rheem/download.html).
+- Include the rheem jar as a library in your application.
+- Steps for writing a rheem application:
+    1. Define a rheem plan using rheem operators. For a list of all currently supported rheem operators check the [api documentation](operators-api-url)
+    2. Create a rheem context.
+    3. Register required platforms with rheem context. You might want to include an "app.properties" file in the root directory of your application to set the platform specific properties. E.g:
+    ```
+        # app.properties file
+        spark.master = local
+        spark.appName= myapp
+    ```
+    4. Execute rheemplan.
 
+### Example
 
-
+```
+       // Build the RheemPlan that reads from a text file as source, 
+       // performs an uppercase on all characters and output to a localcallback sink
+       
+       // Create a plan
+        RheemPlan rheemPlan = new RheemPlan();
+        // Define the operators.
+        TextFileSource textFileSource = new TextFileSource("file.txt");
+        MapOperator<String, String> upperOperator = new MapOperator<>(
+            String::toUpperCase, String.class, String.class
+        );
+        LocalCallbackSink<String> stdoutSink =  LocalCallbackSink.createStdoutSink(String.class);
+        
+        // Connect the operators together.
+        textFileSource.connectTo(0, upperOperator, 0);
+        reverseOperator.connectTo(0, stdoutSink, 0);
+        
+        // Add a sink to the rheem plan.
+        rheemPlan.addSink(stdoutSink);
+        
+        // Instantiate Rheem context and register the backends.
+        RheemContext rheemContext = new RheemContext();
+        rheemContext.register(JavaPlatform.getInstance());
+        rheemContext.register(SparkPlatform.getInstance());
+        
+        //Execute the plan
+        rheemContext.execute(rheemPlan);
+```
+    
