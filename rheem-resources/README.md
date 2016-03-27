@@ -26,7 +26,7 @@ To be able to run a Rheem application, the following software is needed.
     - [Alluxio](http://www.alluxio.org/)
 
 ### Download and Usage
-- You can download [the latest jar from here](http://da.qcri.org/rheem/download.html).
+- You can download the latest [from here(with spark 1.6 included)](http://rheem-qcri.s3-website-us-east-1.amazonaws.com/rheem-0.1-with-spark-1.6.0.SNAPSHOT.jar), or [here(no spark)](http://rheem-qcri.s3-website-us-east-1.amazonaws.com/rheem-0.1-SNAPSHOT.jar).
 - Include the rheem jar as a library in your application.
 - Steps for writing a rheem application:
     1. Define a rheem plan using rheem operators. For a list of all currently supported rheem operators check the [api documentation](operators-api-url)
@@ -35,15 +35,17 @@ To be able to run a Rheem application, the following software is needed.
     4. Execute rheemplan.
 
 
-### Example
+# Example
 
-``` 
+###app.properties file
+``` javascript
     # app.properties file
     spark.master = local
     spark.appName= myapp
-```
-
-
+```  
+  
+   
+###RheemPlan.java
 ```java
        // Build the RheemPlan that reads from a text file as source, 
        // performs an uppercase on all characters and output to a localcallback sink
