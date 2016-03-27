@@ -2,5 +2,6 @@ org.qcri.rheem.basic.function
 org.qcri.rheem.basic.operators
 org.qcri.rheem.core.api
 org.qcri.rheem.core.function
+org.qcri.rheem.core.plan.rheemplan
 org.qcri.rheem.java.operators
 org.qcri.rheem.spark.operators
