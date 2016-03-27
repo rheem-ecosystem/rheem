@@ -29,7 +29,7 @@ To be able to run a Rheem application, the following software is needed.
 - You can download the latest [from here(with spark 1.6 included)](http://rheem-qcri.s3-website-us-east-1.amazonaws.com/rheem-0.1-with-spark-1.6.0.SNAPSHOT.jar), or [here(no spark)](http://rheem-qcri.s3-website-us-east-1.amazonaws.com/rheem-0.1-SNAPSHOT.jar).
 - Include the rheem jar as a library in your application.
 - Steps for writing a rheem application:
-    1. Define a rheem plan using rheem operators. For a list of all currently supported rheem operators check the [api documentation](operators-api-url)
+    1. Define a [rheem plan](rheem-resources/docs/org/qcri/rheem/core/plan/rheemplan/RheemPlan.html) using rheem operators. For a list of all currently supported rheem operators check the [api documentation](rheem-resources/docs/org/qcri/rheem/basic/operators/package-summary.html)
     2. Create a rheem context.
     3. Register required platforms with rheem context. You might want to include an "app.properties" file in the root directory of your application to set the platform specific properties. 
     4. Execute rheemplan.
