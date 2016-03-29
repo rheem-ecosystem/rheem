@@ -223,6 +223,9 @@
 				}
 
 	/* Lists */
+        #readme ul {list-style-type: disc;}
+
+        #readme ol {list-style-type: lower-roman;}
 
 		ul.default
 		{
