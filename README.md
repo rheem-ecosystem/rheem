@@ -45,7 +45,8 @@ To be able to run a Rheem application, the following software is needed.
 ```  
   
    
-###RheemPlan.java
+### RheemPlan.java
+![alt text](images/upper_case.png "Upper case rheem plan")
 ```java
        // Build the RheemPlan that reads from a text file as source, 
        // performs an uppercase on all characters and output to a localcallback sink
@@ -61,7 +62,7 @@ To be able to run a Rheem application, the following software is needed.
         
         // Connect the operators together.
         textFileSource.connectTo(0, upperOperator, 0);
-        reverseOperator.connectTo(0, stdoutSink, 0);
+        upperOperator.connectTo(0, stdoutSink, 0);
         
         // Add a sink to the rheem plan.
         rheemPlan.addSink(stdoutSink);
@@ -74,4 +75,4 @@ To be able to run a Rheem application, the following software is needed.
         //Execute the plan
         rheemContext.execute(rheemPlan);
 ```
-    
+
