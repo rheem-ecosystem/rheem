@@ -3,7 +3,7 @@ Rheem
 
 ### What is Rheem?
 
-Rheem is an efficient and scalable distributed data processing framework developed by the data analytic group at [Qatar Computing Research Institute](http://da.qcri.org). It has three distinctive features:
+Rheem is an efficient and scalable distributed data processing framework developed by the data analytics group at [Qatar Computing Research Institute](http://da.qcri.org). It has three distinctive features:
 
 1. it allows users to easily specify their jobs with easy-to-use interfaces,
 2. it provides developers with opportunities to optimize performance in different ways, and
@@ -11,16 +11,16 @@ Rheem is an efficient and scalable distributed data processing framework develop
 
 ### Prerequisites
 
-To be able to run a Rheem application, the following software is needed.
+To be able to run a Rheem application, the following software is needed:
 - [Java 1.8](http://www.java.com/en/download/faq/develop.xml)
 - [Apache Maven](http://maven.apache.org)
 - Include the rheem jar files into your project.
 - In case spark is needed; Spark(v1.6 and over), hadoop (v2.2 to v2.6.2)
 
 ### Platforms support
-- Java
+- Java (standalone JVM)
 - [Apache Spark](https://spark.apache.org/)
-- Coming soon
+- Coming soon: 
     - [Graphchi](https://github.com/GraphChi/graphchi-java)
     - [Postgres](www.postgresql.org)
     - [Alluxio](http://www.alluxio.org/)
