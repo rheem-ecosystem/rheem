@@ -67,7 +67,7 @@ To be able to run a Rheem application, the following software is needed:
         // Instantiate Rheem context and register the backends.
         RheemContext rheemContext = new RheemContext();
         rheemContext.register(JavaPlatform.getInstance());
-        rheemContext.register(SparkPlatform.getInstance());
+        //rheemContext.register(SparkPlatform.getInstance());
         
         //Execute the plan
         rheemContext.execute(rheemPlan);
@@ -79,6 +79,51 @@ To be able to run a Rheem application, the following software is needed:
 In this WordCount example, we first use a FlatMapOperator to split each line to a set of words and then a MapOperator to transform each word into lowercase and output a pair of the form (word, 1). Then, we use a ReduceByOperator to group the pairs using the word as the key and add their occurences. The operators are then connected via the connectTo() function to form a Rheem plan and the plan is executed.
 Note that the same example could be done without the MapOperator, however, we show here the use of the MapOperator.
 
-<script src="https://gist.github.com/zkaoudi/090e21c54b289a898e57.js"></script>
+```java
+        public static final Integer INPUT0 = 0;
+        public static final Integer OUTPUT0 = 0;
 
-Now if you want to execute the same code in Spark, the only thing you need to do is to change the backend in the line 35: <span style="background-color: #D3D3D3">rheemContext.register(SparkPlatform.getInstance()</span>.
+        String fileName="myFile.txt";;
+
+        // Instantiate Rheem and activate the backend.
+        RheemContext rheemContext = new RheemContext();
+        rheemContext.register(JavaPlatform.getInstance());
+        rheemContext.register(SparkPlatform.getInstance());
+
+        TextFileSource textFileSource = new TextFileSource(new File(fileName).toURI().toString());
+
+        // for each line (input) output an iterator of the words
+        FlatMapOperator<String, String> flatMapOperator = new FlatMapOperator<>(
+                new FlatMapDescriptor<>(line -> Arrays.asList(line.split(" ")), String.class, String.class));
+
+        // for each word transform it to lowercase and output a key-value pair (word, 1)
+        MapOperator<String, Tuple2> mapOperator = new MapOperator<>(
+                new TransformationDescriptor<>(word -> new Tuple2<>(word.toLowerCase(), 1),
+                        String.class,
+                        Tuple2.class));
+
+        // groupby the key (word) and add up the values (frequency)
+        ReduceByOperator<Tuple2, String> reduceByOperator = new ReduceByOperator<>(
+                new TransformationDescriptor<>(pair -> ((Tuple2<String, Integer>)pair).field0, Tuple2.class, String.class),
+                new ReduceDescriptor<>(
+                        ((a, b) -> {
+                            ((Tuple2<String, Integer>)a).field1 += ((Tuple2<String, Integer>)b).field1;
+                            return a;
+                        }), Tuple2.class));
+
+        // write results to a sink
+        List<Tuple2> results = new ArrayList<>();
+        LocalCallbackSink<Tuple2> sink = LocalCallbackSink.createCollectingSink(results, Tuple2.class);
+
+        // Build Rheem plan by connecting operators
+        textFileSource.connectTo(OUTPUT0, flatMapOperator, INPUT0);
+        flatMapOperator.connectTo(OUTPUT0, mapOperator, INPUT0);
+        mapOperator.connectTo(OUTPUT0, reduceByOperator, INPUT0);
+        reduceByOperator.connectTo(OUTPUT0, sink, INPUT0);
+
+        // Have Rheem execute the plan and print results.
+        rheemContext.execute(new RheemPlan(sink));
+        System.out.println("results:" + results);
+```
+
+
