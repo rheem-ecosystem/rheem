@@ -20,7 +20,7 @@ To be able to run a Rheem application, the following software is needed:
 - Include the rheem jar files into your project.
 - In case spark is needed; Spark (v1.6 and over), hadoop (v2.2 to v2.6.2)
 
-### Platforms support
+### Platforms support (Rheem v0.1)
 - Java (standalone JVM)
 - [Apache Spark](https://spark.apache.org/)
 - Coming soon: 
