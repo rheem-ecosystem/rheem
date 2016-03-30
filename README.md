@@ -3,14 +3,17 @@ Rheem
 
 ### What is Rheem?
 
-Rheem is an efficient and scalable distributed data processing framework developed by the data analytics group at [Qatar Computing Research Institute](http://da.qcri.org). It has three distinctive features:
+Rheem is an efficient and scalable distributed data processing framework developed by the [data analytics](http://da.qcri.org) group at [Qatar Computing Research Institute](http://qcri.com/). It has three distinctive features:
 
 1. it allows users to easily specify their jobs with easy-to-use interfaces,
 2. it provides developers with opportunities to optimize performance in different ways, and
 3. it can run on any execution platform, such as Spark or MapReduce and combinations of those.
 
-### Prerequisites
+### Jar
+- You can download the latest (v0.10) [from here (with spark 1.6 included)](http://rheem-qcri.s3-website-us-east-1.amazonaws.com/rheem-0.1-with-spark-1.6.0.SNAPSHOT.jar), or [here (no spark)](http://rheem-qcri.s3-website-us-east-1.amazonaws.com/rheem-0.1-SNAPSHOT.jar).
+- This version v0.10 provides the platform independence feature (looping and cross-platform optimization features are coming very soon, keep tuned!)
 
+### Prerequisites
 To be able to run a Rheem application, the following software is needed:
 - [Java 1.8](http://www.java.com/en/download/faq/develop.xml)
 - [Apache Maven](http://maven.apache.org)
@@ -22,11 +25,10 @@ To be able to run a Rheem application, the following software is needed:
 - [Apache Spark](https://spark.apache.org/)
 - Coming soon: 
     - [Graphchi](https://github.com/GraphChi/graphchi-java)
-    - [Postgres](www.postgresql.org)
+    - [Postgres](http://www.postgresql.org)
     - [Alluxio](http://www.alluxio.org/)
 
-### Download and Usage
-- You can download the latest [from here(with spark 1.6 included)](http://rheem-qcri.s3-website-us-east-1.amazonaws.com/rheem-0.1-with-spark-1.6.0.SNAPSHOT.jar), or [here(no spark)](http://rheem-qcri.s3-website-us-east-1.amazonaws.com/rheem-0.1-SNAPSHOT.jar).
+### Usage
 - Include the rheem jar as a library in your application.
 - Steps for writing a rheem application:
     1. Define a [rheem plan](rheem-resources/docs/org/qcri/rheem/core/plan/rheemplan/RheemPlan.html) using rheem operators. For a list of all currently supported rheem operators check the [api documentation](rheem-resources/docs/org/qcri/rheem/basic/operators/package-summary.html)
