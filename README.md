@@ -36,9 +36,9 @@ To be able to run a Rheem application, the following software is needed:
     3. Register required platforms with rheem context. You might want to include an "app.properties" file in the root directory of your application to set the platform specific properties (see below). 
     4. Execute Rheem plan.
 ``` javascript
-# app.properties file
-spark.master = local
-spark.appName= myapp
+    # app.properties file
+    spark.master = local
+    spark.appName= myapp
 ```
 
 # Examples     
