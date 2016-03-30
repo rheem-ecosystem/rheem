@@ -41,12 +41,9 @@ spark.master = local
 spark.appName= myapp
 ```
 
-
-
-# Examples  
-   
+# Examples     
 ### (1) UpperCase
-![alt text](images/upper_case.png "Upper case rheem plan")
+![alt text](images/uppercase.png "UpperCase rheem plan")
 ```java
        // Build the RheemPlan that reads from a text file as source, 
        // performs an uppercase on all characters and output to a localcallback sink
@@ -77,11 +74,11 @@ spark.appName= myapp
 ```
 
 ### (2) WordCount
+![alt text](images/wordcount.png "WordCount rheem plan")
 
-<p align="justify" style="margin-top:-20px"> In this WordCount example, we first use a FlatMapOperator to split each line to a set of words and then a MapOperator to transform each word into lowercase and output a pair of the form (word, 1). Then, we use a ReduceByOperator to group the pairs using the word as the key and add their occurences. The operators are then connected via the connectTo() function to form a Rheem plan and the plan is executed.
+In this WordCount example, we first use a FlatMapOperator to split each line to a set of words and then a MapOperator to transform each word into lowercase and output a pair of the form (word, 1). Then, we use a ReduceByOperator to group the pairs using the word as the key and add their occurences. The operators are then connected via the connectTo() function to form a Rheem plan and the plan is executed.
 Note that the same example could be done without the MapOperator, however, we show here the use of the MapOperator.
-</p>
+
 <script src="https://gist.github.com/zkaoudi/090e21c54b289a898e57.js"></script>
-<p align="justify" style="margin-top:0px"> Now if you want to execute the same code in Spark, the only thing you need to do is to change the backend in the line 35: <span style="background-color: #D3D3D3">rheemContext.register(SparkPlatform.getInstance())</span>
-<code></code>.
-</p>
+
+Now if you want to execute the same code in Spark, the only thing you need to do is to change the backend in the line 35: <span style="background-color: #D3D3D3">rheemContext.register(SparkPlatform.getInstance()</span>.
