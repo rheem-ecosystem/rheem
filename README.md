@@ -37,7 +37,7 @@ To be able to run a Rheem application, the following software is needed:
     4. Execute rheemplan.
 
 
-# Example
+# Examples
 
 ###app.properties file
 ``` javascript
@@ -47,7 +47,7 @@ To be able to run a Rheem application, the following software is needed:
 ```  
   
    
-### RheemPlan.java
+### (1) UperCase RheemPlan.java
 ![alt text](images/upper_case.png "Upper case rheem plan")
 ```java
        // Build the RheemPlan that reads from a text file as source, 
@@ -78,3 +78,4 @@ To be able to run a Rheem application, the following software is needed:
         rheemContext.execute(rheemPlan);
 ```
 
+### (2) WordCount RheemPlan.java
