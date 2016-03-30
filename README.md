@@ -45,11 +45,10 @@ To be able to run a Rheem application, the following software is needed:
 ### (1) UpperCase
 ![alt text](images/uppercase.png "UpperCase rheem plan")
 
-In this simple example, we take a text file iterate through it's stream of lines,
-perform a String UpperCase operation on each line, and output the result to standard java output.
+In this simple example, we take a text file iterate through its stream of lines,
+perform a String UpperCase operation on each line, and output the result to standard Java output.
 Step one is defining a rheem plan, this includes creating a new RheemPlan, new operators instances(lines 4 to 11), connecting operators together (lines 13-15), and then adding a sink to the RheemPlan instance. Step two is creating a rheem context(line 21). Step three is registering requied platforms(line 22). Note that for this simple example we only registerd the Standalone JVM platform. Finally, step four is executing the rheem plan(line 25).
 
-Note that in line
 
 ```java
        // Build the RheemPlan that reads from a text file as source, 
@@ -84,7 +83,7 @@ Note that in line
 
 In this WordCount example, we first use a FlatMapOperator to split each line to a set of words and then a MapOperator to transform each word into lowercase and output a pair of the form (word, 1). Then, we use a ReduceByOperator to group the pairs using the word as the key and add their occurences. The operators are then connected via the connectTo() function to form a Rheem plan and the plan is executed.
 Note that the same example could be done without the MapOperator, however, we show here the use of the MapOperator.
-Also note that in this example we registered 2 platforms (lines 8-9), which means that for an opmitmal execution time, the rheem optimizer might get to choose between the 2 platforms when executing each operator.
+Also note that in this example we registered 2 platforms (lines 8-9), which means that for an optimal execution time, the rheem optimizer will choose between the 2 platforms when executing each operator.
 
 ```java
         public static final Integer INPUT0 = 0;
