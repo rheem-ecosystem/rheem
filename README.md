@@ -41,39 +41,42 @@ To be able to run a Rheem application, the following software is needed:
     spark.appName= myapp
 ```
 
-# Examples     
+# Examples
+
+You can download the complete source of the examples from [here](http://rheem-qcri.s3-website-us-east-1.amazonaws.com/examples.zip).
+
 ### (1) UpperCase
 ![alt text](images/uppercase.png "UpperCase rheem plan")
 
 In this simple example, we take a text file iterate through its stream of lines,
 perform a String UpperCase operation on each line, and output the result to standard Java output.
-Step one is defining a rheem plan, this includes creating a new RheemPlan, new operators instances(lines 4 to 11), connecting operators together (lines 13-15), and then adding a sink to the RheemPlan instance. Step two is creating a rheem context(line 21). Step three is registering requied platforms(line 22). Note that for this simple example we only registerd the Standalone JVM platform. Finally, step four is executing the rheem plan(line 25).
+Step one is defining a rheem plan, this includes creating a new RheemPlan, new operators instances(lines 4 to 11), connecting operators together (lines 13-15), and then adding a sink to the RheemPlan instance. Step two is creating a rheem context(line 21). Step three is registering required platforms(line 22). Note that for this simple example we only registerd the Standalone JVM platform. Finally, step four is executing the rheem plan(line 25).
 
 
 ```java
-       // Build the RheemPlan that reads from a text file as source, 
-       // performs an uppercase on all characters and output to a localcallback sink
-       
-       // Create a plan
+        // Build the RheemPlan that reads from a text file as source,
+        // performs an uppercase on all characters and output to a localcallback sink
+
+        // Create a plan
         RheemPlan rheemPlan = new RheemPlan();
         // Define the operators.
-        TextFileSource textFileSource = new TextFileSource("file.txt");
+        TextFileSource textFileSource = new TextFileSource(inputFileUrl);
         MapOperator<String, String> upperOperator = new MapOperator<>(
-            String::toUpperCase, String.class, String.class
+                String::toUpperCase, String.class, String.class
         );
         LocalCallbackSink<String> stdoutSink =  LocalCallbackSink.createStdoutSink(String.class);
-        
+
         // Connect the operators together.
         textFileSource.connectTo(0, upperOperator, 0);
         upperOperator.connectTo(0, stdoutSink, 0);
-        
+
         // Add a sink to the rheem plan.
         rheemPlan.addSink(stdoutSink);
-        
+
         // Instantiate Rheem context and register the backends.
         RheemContext rheemContext = new RheemContext();
         rheemContext.register(JavaPlatform.getInstance());
-        
+
         //Execute the plan
         rheemContext.execute(rheemPlan);
 ```
@@ -83,20 +86,16 @@ Step one is defining a rheem plan, this includes creating a new RheemPlan, new o
 
 In this WordCount example, we first use a FlatMapOperator to split each line to a set of words and then a MapOperator to transform each word into lowercase and output a pair of the form (word, 1). Then, we use a ReduceByOperator to group the pairs using the word as the key and add their occurences. The operators are then connected via the connectTo() function to form a Rheem plan and the plan is executed.
 Note that the same example could be done without the MapOperator, however, we show here the use of the MapOperator.
-Also note that in this example we registered 2 platforms (lines 8-9), which means that for an optimal execution time, the rheem optimizer will choose between the 2 platforms when executing each operator.
+Also note that in this example we registered 2 platforms (lines 3-4), which means that for an optimal execution time, the rheem optimizer will choose between the 2 platforms when executing each operator.
 
 ```java
-        public static final Integer INPUT0 = 0;
-        public static final Integer OUTPUT0 = 0;
-
-        String fileName="myFile.txt";;
 
         // Instantiate Rheem and activate the backend.
         RheemContext rheemContext = new RheemContext();
         rheemContext.register(JavaPlatform.getInstance());
         rheemContext.register(SparkPlatform.getInstance());
 
-        TextFileSource textFileSource = new TextFileSource(new File(fileName).toURI().toString());
+        TextFileSource textFileSource = new TextFileSource(inputFileUrl);
 
         // for each line (input) output an iterator of the words
         FlatMapOperator<String, String> flatMapOperator = new FlatMapOperator<>(
