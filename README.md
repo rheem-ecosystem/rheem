@@ -26,6 +26,7 @@ To be able to run a Rheem application, the following software is needed:
 - Coming soon: 
     - [Graphchi](https://github.com/GraphChi/graphchi-java)
     - [Postgres](http://www.postgresql.org)
+    - [Torch](http://torch.ch/)
     - [Alluxio](http://www.alluxio.org/)
 
 ### Usage
