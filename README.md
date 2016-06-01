@@ -13,6 +13,9 @@ Rheem is an efficient and scalable distributed data processing framework develop
 - You can download the latest (v0.1) [from here (with spark 1.6 included)](http://rheem-qcri.s3-website-us-east-1.amazonaws.com/rheem-0.1-with-spark-1.6.0.SNAPSHOT.jar), or [here (no spark)](http://rheem-qcri.s3-website-us-east-1.amazonaws.com/rheem-0.1-SNAPSHOT.jar).
 - This version v0.1 provides the platform independence feature (looping and cross-platform optimization features are coming very soon, keep tuned!)
 
+### Source Code
+- The source code will be released on June 9th, 2016. Stay tuned!
+
 ### Prerequisites
 To be able to run a Rheem application, the following software is needed:
 - [Java 1.8](http://www.java.com/en/download/faq/develop.xml)
