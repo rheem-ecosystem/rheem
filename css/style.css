@@ -362,6 +362,7 @@
 /* Code Line Numbering
 /***********************************************************************************/
 pre {
+    padding: 12px 30px !important;
     position: relative;
     margin-bottom: 24px;
     border-radius: 3px;
@@ -372,7 +373,6 @@ pre {
 
 code {
   display: block;
-  padding: 12px 24px;
   overflow-y: auto;
   font-weight: 300;
   font-family: Menlo, monospace;

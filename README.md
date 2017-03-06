@@ -11,6 +11,8 @@ This approach aims at freeing data engineers and software developers from the bu
 - [Postgres](http://www.postgresql.org)
 - [SQLite](https://www.sqlite.org/)
 
+Rheem is open source. You can find the source code [here](http://github.com/daqcri/rheem)
+
 ## How to use Rheem
 
 **Requirements.**
@@ -86,6 +88,22 @@ You can find the most relevant settings in the following:
   * `rheem.postgres.cpu.cores (= 2)`: number of cores PostgreSQL runs on
 
 **Code with Rheem.** The recommended way to specify your apps with Rheem is via its Scala or Java API from the `rheem-api` module. You can find examples below.
+
+## Deploying and running a rheem application on the cluster.
+
+1. Create a RHEEM_HOME folder on the master node of your cluster.
+2. Include rheem depedencies as shown above in your application's pom file.
+3. Build your application with maven, and package its jars (including all rheem depedencies) into one folder, call it lib. You may need to use maven assembly plugin for that.
+4. Copy the lib directory to your RHEEM_HOME 
+5. Copy the rheem.properties file to your RHEEM_HOME
+6. Define a rheem classpath enviroment variable that has RHEEM_HOME and SPARK_HOME added
+7. Run your application, pointing to rheem.properties and rheem classpath: java -Drheem.configuration="path_to/rheem.properties" -cp "$RHEEM__CLASSPATH" yourapplication.Main
+
+[Here's](https://s3.amazonaws.com/rheem-qcri/wordcount-distro.zip) an example of a distribution template of a word count application. conf/set-env.sh is a script for setting the class paths(step 6). bin/wordcount is a script for running the application (step 7). You can edit both files as needed, put all your jars under lib, and copy it directly to your cluster.
+
+## More documentation.
+
+You can find the javadocs [here](rheem-resources/docs/index.html)
 
 ## Examples
 
