@@ -11,7 +11,7 @@ This approach aims at freeing data engineers and software developers from the bu
 - [Postgres](http://www.postgresql.org)
 - [SQLite](https://www.sqlite.org/)
 
-Rheem is open source. You can find the source code [here](http://github.com/RheemEcoSystem/rheem)
+Rheem is open source. You can find the source code [here](http://github.com/rheem-ecosystem/rheem)
 
 ## How to use Rheem
 
