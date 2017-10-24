@@ -14,6 +14,10 @@ import java.util.Collection;
  */
 public interface EstimationContext {
 
+    default String getSelectivityKey(){
+        return "No SelectivityKey specified";
+    };
+
     /**
      * Provide the input {@link CardinalityEstimate}s for the {@link Operator} that corresponds to this instance.
      *
@@ -136,6 +140,7 @@ public interface EstimationContext {
                     .put("inCards", JsonSerializables.serializeAll(Arrays.asList(ctx.getInputCardinalities()), false))
                     .put("outCards", JsonSerializables.serializeAll(Arrays.asList(ctx.getOutputCardinalities()), false))
                     .put("executions", ctx.getNumExecutions())
+                    .put("selectivityKey", ctx.getSelectivityKey())
                     .putOpt("properties", doubleProperties);
         }
 

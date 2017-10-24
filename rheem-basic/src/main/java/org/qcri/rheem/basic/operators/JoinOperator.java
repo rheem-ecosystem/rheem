@@ -5,6 +5,9 @@ import org.qcri.rheem.basic.data.Tuple2;
 import org.qcri.rheem.core.api.Configuration;
 import org.qcri.rheem.core.function.FunctionDescriptor;
 import org.qcri.rheem.core.function.TransformationDescriptor;
+import org.qcri.rheem.core.optimizer.OptimizationContext;
+import org.qcri.rheem.core.optimizer.ProbabilisticDoubleInterval;
+import org.qcri.rheem.core.optimizer.cardinality.CardinalityEstimate;
 import org.qcri.rheem.core.optimizer.cardinality.CardinalityEstimator;
 import org.qcri.rheem.core.optimizer.cardinality.DefaultCardinalityEstimator;
 import org.qcri.rheem.core.plan.rheemplan.BinaryToUnaryOperator;
@@ -72,21 +75,90 @@ public class JoinOperator<InputType0, InputType1, Key>
         return this.keyDescriptor0;
     }
 
+    public String getSelectKeyString(){
+        if (this.getKeyDescriptor0().getUdfSelectivity() != null){
+            return this.getKeyDescriptor0().getUdfSelectivityKeyString();
+        } else {
+            return "";
+        }
+    }
+
     public TransformationDescriptor<InputType1, Key> getKeyDescriptor1() {
         return this.keyDescriptor1;
     }
 
 
+//    @Override
+//    public Optional<CardinalityEstimator> createCardinalityEstimator(
+//            final int outputIndex,
+//            final Configuration configuration) {
+//        Validate.inclusiveBetween(0, this.getNumOutputs() - 1, outputIndex);
+//        // The current idea: We assume, we have a foreign-key like join
+//        // TODO: Find a better estimator.
+//        return Optional.of(new DefaultCardinalityEstimator(
+//                .5d, 2, this.isSupportingBroadcastInputs(),
+//                inputCards -> 3 * Math.max(inputCards[0], inputCards[1])
+//        ));
+//    }
+
+
+
+
+
     @Override
-    public Optional<CardinalityEstimator> createCardinalityEstimator(
+    public Optional<org.qcri.rheem.core.optimizer.cardinality.CardinalityEstimator> createCardinalityEstimator(
             final int outputIndex,
             final Configuration configuration) {
         Validate.inclusiveBetween(0, this.getNumOutputs() - 1, outputIndex);
-        // The current idea: We assume, we have a foreign-key like join
-        // TODO: Find a better estimator.
-        return Optional.of(new DefaultCardinalityEstimator(
-                .5d, 2, this.isSupportingBroadcastInputs(),
-                inputCards -> 3 * Math.max(inputCards[0], inputCards[1])
-        ));
+        return Optional.of(new JoinOperator.CardinalityEstimator(configuration));
+    }
+
+
+    private class CardinalityEstimator implements org.qcri.rheem.core.optimizer.cardinality.CardinalityEstimator {
+
+        /**
+         * The expected selectivity to be applied in this instance.
+         */
+        private final ProbabilisticDoubleInterval selectivity;
+        Configuration configuration;
+
+        public CardinalityEstimator(Configuration configuration) {
+            this.selectivity = configuration.getUdfSelectivityProvider().provideFor(JoinOperator.this.keyDescriptor0); // TODO JRK: What about the other one?
+            this.configuration = configuration;
+        }
+
+        @Override
+        public CardinalityEstimate estimate(OptimizationContext optimizationContext, CardinalityEstimate... inputEstimates) {
+            Validate.isTrue(inputEstimates.length == JoinOperator.this.getNumInputs());
+            final CardinalityEstimate inputEstimate0 = inputEstimates[0];
+            final CardinalityEstimate inputEstimate1 = inputEstimates[1];
+            final double max_lower_estimate =  Math.max(inputEstimate0.getLowerEstimate(), inputEstimate1.getLowerEstimate());
+            final double max_upper_estimate =  Math.max(inputEstimate0.getUpperEstimate(), inputEstimate1.getUpperEstimate());
+
+            String mode = this.configuration.getStringProperty("rheem.optimizer.sr.mode", "best");
+            if (mode.equals("best")){
+                mode = this.selectivity.getBest();
+            }
+
+                if (mode.equals("lin")) {
+                return new CardinalityEstimate(
+                        (long) Math.max(0, ((max_lower_estimate * this.selectivity.getCoeff() + this.selectivity.getIntercept()) * max_lower_estimate)),
+                        (long) Math.max(0, ((max_upper_estimate * this.selectivity.getCoeff() + this.selectivity.getIntercept()) * max_upper_estimate)),
+                        inputEstimate0.getCorrectnessProbability() * this.selectivity.getCorrectnessProbability()
+                );
+            } else if (mode.equals("log")) {
+                return new CardinalityEstimate(
+                        (long) Math.max(0, ((Math.log(max_lower_estimate) * this.selectivity.getLog_coeff() + this.selectivity.getLog_intercept()) * max_lower_estimate)),
+                        (long) Math.max(0, ((Math.log(max_upper_estimate) * this.selectivity.getLog_coeff() + this.selectivity.getLog_intercept()) * max_upper_estimate)),
+                        inputEstimate0.getCorrectnessProbability() * this.selectivity.getCorrectnessProbability()
+                );
+            } else {
+                return new CardinalityEstimate(
+                        (long) Math.max(0, (max_lower_estimate * this.selectivity.getLowerEstimate())),
+                        (long) Math.max(0, (max_upper_estimate * this.selectivity.getUpperEstimate())),
+                        inputEstimate0.getCorrectnessProbability() * this.selectivity.getCorrectnessProbability()
+                );
+            }
+        }
     }
 }

@@ -1,5 +1,6 @@
 package org.qcri.rheem.core.function;
 
+import org.qcri.rheem.core.optimizer.ProbabilisticDoubleInterval;
 import org.qcri.rheem.core.optimizer.costs.LoadEstimator;
 import org.qcri.rheem.core.optimizer.costs.LoadProfileEstimator;
 import org.qcri.rheem.core.optimizer.costs.NestableLoadProfileEstimator;
@@ -34,6 +35,17 @@ public class ReduceDescriptor<Type> extends FunctionDescriptor {
                             DataUnitGroupType<Type> inputType, BasicDataUnitType<Type> outputType,
                             LoadProfileEstimator loadProfileEstimator) {
         super(loadProfileEstimator);
+        this.inputType = inputType;
+        this.outputType = outputType;
+        this.javaImplementation = javaImplementation;
+    }
+
+    public ReduceDescriptor(SerializableBinaryOperator<Type> javaImplementation,
+                            DataUnitGroupType<Type> inputType, BasicDataUnitType<Type> outputType,
+                            LoadProfileEstimator loadProfileEstimator,
+                            ProbabilisticDoubleInterval udfSelectivity,
+                            String udfSelectivityKey) {
+        super(loadProfileEstimator, udfSelectivity, udfSelectivityKey);
         this.inputType = inputType;
         this.outputType = outputType;
         this.javaImplementation = javaImplementation;

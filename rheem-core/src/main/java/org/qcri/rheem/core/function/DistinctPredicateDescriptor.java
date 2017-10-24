@@ -11,7 +11,7 @@ import java.util.Optional;
  *
  * @param <Input> input type of the transformation function
  */
-public class PredicateDescriptor<Input> extends FunctionDescriptor {
+public class DistinctPredicateDescriptor<Input> extends FunctionDescriptor {
 
     protected final BasicDataUnitType<Input> inputType;
 
@@ -24,55 +24,55 @@ public class PredicateDescriptor<Input> extends FunctionDescriptor {
      */
     private ProbabilisticDoubleInterval selectivity;
 
-    public PredicateDescriptor(SerializablePredicate<Input> javaImplementation,
-                               Class<Input> inputTypeClass) {
+    public DistinctPredicateDescriptor(SerializablePredicate<Input> javaImplementation,
+                                       Class<Input> inputTypeClass) {
         this(javaImplementation, inputTypeClass, (ProbabilisticDoubleInterval) null);
     }
 
-    public PredicateDescriptor(SerializablePredicate<Input> javaImplementation,
-                               Class<Input> inputTypeClass,
-                               ProbabilisticDoubleInterval selectivity) {
+    public DistinctPredicateDescriptor(SerializablePredicate<Input> javaImplementation,
+                                       Class<Input> inputTypeClass,
+                                       ProbabilisticDoubleInterval selectivity) {
         this(javaImplementation, inputTypeClass, selectivity, null);
     }
 
-    public PredicateDescriptor(SerializablePredicate<Input> javaImplementation,
-                               Class<Input> inputTypeClass,
-                               LoadProfileEstimator loadProfileEstimator) {
+    public DistinctPredicateDescriptor(SerializablePredicate<Input> javaImplementation,
+                                       Class<Input> inputTypeClass,
+                                       LoadProfileEstimator loadProfileEstimator) {
         this(javaImplementation, inputTypeClass, null, loadProfileEstimator);
     }
 
-    public PredicateDescriptor(SerializablePredicate<Input> javaImplementation,
-                               Class<Input> inputTypeClass,
-                               ProbabilisticDoubleInterval selectivity,
-                               LoadProfileEstimator loadProfileEstimator) {
+    public DistinctPredicateDescriptor(SerializablePredicate<Input> javaImplementation,
+                                       Class<Input> inputTypeClass,
+                                       ProbabilisticDoubleInterval selectivity,
+                                       LoadProfileEstimator loadProfileEstimator) {
         this(javaImplementation, BasicDataUnitType.createBasic(inputTypeClass), selectivity, loadProfileEstimator);
     }
 
-    public PredicateDescriptor(SerializablePredicate<Input> javaImplementation,
-                               BasicDataUnitType<Input> inputType,
-                               ProbabilisticDoubleInterval selectivity,
-                               LoadProfileEstimator loadProfileEstimator) {
+    public DistinctPredicateDescriptor(SerializablePredicate<Input> javaImplementation,
+                                       BasicDataUnitType<Input> inputType,
+                                       ProbabilisticDoubleInterval selectivity,
+                                       LoadProfileEstimator loadProfileEstimator) {
         super(loadProfileEstimator);
         this.javaImplementation = javaImplementation;
         this.inputType = inputType;
         this.selectivity = selectivity;
     }
 
-    public PredicateDescriptor(SerializablePredicate<Input> javaImplementation,
-                               BasicDataUnitType<Input> inputType,
-                               ProbabilisticDoubleInterval selectivity,
-                               LoadProfileEstimator loadProfileEstimator,
-                               ProbabilisticDoubleInterval udfSelectivity,
-                               String udfSelectivityKey) {
+    public DistinctPredicateDescriptor(SerializablePredicate<Input> javaImplementation,
+                                       BasicDataUnitType<Input> inputType,
+                                       ProbabilisticDoubleInterval selectivity,
+                                       LoadProfileEstimator loadProfileEstimator,
+                                       ProbabilisticDoubleInterval udfSelectivity,
+                                       String udfSelectivityKey) {
         super(loadProfileEstimator, udfSelectivity, udfSelectivityKey);
         this.javaImplementation = javaImplementation;
         this.inputType = inputType;
         this.selectivity = selectivity;
     }
 
-    public PredicateDescriptor(BasicDataUnitType<Input> inputType,
-                               ProbabilisticDoubleInterval udfSelectivity,
-                               String udfSelectivityKey) {
+    public DistinctPredicateDescriptor(BasicDataUnitType<Input> inputType,
+                                       ProbabilisticDoubleInterval udfSelectivity,
+                                       String udfSelectivityKey) {
         super(udfSelectivity, udfSelectivityKey);
         this.inputType = inputType;
         this.javaImplementation = null;
@@ -104,7 +104,7 @@ public class PredicateDescriptor<Input> extends FunctionDescriptor {
      *
      * @param sqlImplementation a SQL predicate applicable in a {@code WHERE} clause representing this predicate
      */
-    public PredicateDescriptor<Input> withSqlImplementation(String sqlImplementation) {
+    public DistinctPredicateDescriptor<Input> withSqlImplementation(String sqlImplementation) {
         this.sqlImplementation = sqlImplementation;
         return this;
     }
@@ -115,8 +115,8 @@ public class PredicateDescriptor<Input> extends FunctionDescriptor {
      * @return this instance with type parameters set to {@link Object}
      */
     @SuppressWarnings("unchecked")
-    public PredicateDescriptor<Object> unchecked() {
-        return (PredicateDescriptor<Object>) this;
+    public DistinctPredicateDescriptor<Object> unchecked() {
+        return (DistinctPredicateDescriptor<Object>) this;
     }
 
     public BasicDataUnitType<Input> getInputType() {

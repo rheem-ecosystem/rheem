@@ -35,7 +35,7 @@ public abstract class CardinalityPusher {
 
     /**
      * Push the input {@link CardinalityEstimate}s of the {@code operatorContext} to the output {@link CardinalityEstimate}s.
-     * If that leaded to an update, also update the {@link TimeEstimate}.
+     * If that lead to an update, also update the {@link TimeEstimate}.
      *
      * @param opCtx         will be subject to the push
      * @param configuration potentially provides some estimation helpers

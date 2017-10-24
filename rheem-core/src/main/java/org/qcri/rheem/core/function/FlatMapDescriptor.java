@@ -73,6 +73,20 @@ public class FlatMapDescriptor<Input, Output> extends FunctionDescriptor {
         this.selectivity = selectivity;
     }
 
+    public FlatMapDescriptor(SerializableFunction<Input, Iterable<Output>> javaImplementation,
+                             BasicDataUnitType<Input> inputType,
+                             BasicDataUnitType<Output> outputType,
+                             ProbabilisticDoubleInterval selectivity,
+                             LoadProfileEstimator loadProfileEstimator,
+                             ProbabilisticDoubleInterval udfSelectivity,
+                             String udfSelectivityKey) {
+        super(loadProfileEstimator, udfSelectivity, udfSelectivityKey);
+        this.javaImplementation = javaImplementation;
+        this.inputType = inputType;
+        this.outputType = outputType;
+        this.selectivity = selectivity;
+    }
+
     /**
      * This is function is not built to last. It is thought to help out devising programs while we are still figuring
      * out how to express functions in a platform-independent way.

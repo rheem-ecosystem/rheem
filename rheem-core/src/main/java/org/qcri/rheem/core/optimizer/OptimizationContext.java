@@ -273,6 +273,8 @@ public abstract class OptimizationContext {
         return this.job;
     }
 
+
+
     /**
      * Stores a value into the {@link Job}-global cache.
      *
@@ -371,6 +373,10 @@ public abstract class OptimizationContext {
             this.inputCardinalityMarkers = new boolean[this.inputCardinalities.length];
             this.outputCardinalities = new CardinalityEstimate[this.operator.getNumOutputs()];
             this.outputCardinalityMarkers = new boolean[this.outputCardinalities.length];
+        }
+
+        public String getSelectivityKey() {
+            return this.getOperator().getSelectKeyString();
         }
 
         public Operator getOperator() {

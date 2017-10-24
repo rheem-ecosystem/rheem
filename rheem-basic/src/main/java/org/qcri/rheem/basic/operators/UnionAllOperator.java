@@ -2,6 +2,7 @@ package org.qcri.rheem.basic.operators;
 
 import org.apache.commons.lang3.Validate;
 import org.qcri.rheem.core.api.Configuration;
+import org.qcri.rheem.core.function.PredicateDescriptor;
 import org.qcri.rheem.core.optimizer.cardinality.CardinalityEstimator;
 import org.qcri.rheem.core.optimizer.cardinality.DefaultCardinalityEstimator;
 import org.qcri.rheem.core.plan.rheemplan.BinaryToUnaryOperator;
@@ -18,13 +19,20 @@ import java.util.Optional;
 public class UnionAllOperator<Type>
         extends BinaryToUnaryOperator<Type, Type, Type> {
 
+    protected final PredicateDescriptor<Type> predicateDescriptor;
+
     /**
      * Creates a new instance.
      *
      * @param type the type of the datasets to be coalesced
      */
-    public UnionAllOperator(DataSetType<Type> type) {
+    public UnionAllOperator(DataSetType<Type> type, PredicateDescriptor<Type> predicateDescriptor) {
         super(type, type, type, false);
+        this.predicateDescriptor = predicateDescriptor;
+    }
+
+    public UnionAllOperator(DataSetType<Type> type) {
+        this(type, null);
     }
 
     /**
@@ -33,7 +41,7 @@ public class UnionAllOperator<Type>
      * @param typeClass the type of the datasets to be coalesced
      */
     public UnionAllOperator(Class<Type> typeClass) {
-        this(DataSetType.createDefault(typeClass));
+        this(DataSetType.createDefault(typeClass), null);
     }
 
     /**
@@ -43,6 +51,19 @@ public class UnionAllOperator<Type>
      */
     public UnionAllOperator(UnionAllOperator<Type> that) {
         super(that);
+        this.predicateDescriptor = that.getPredicateDescriptor();
+    }
+
+    public PredicateDescriptor<Type> getPredicateDescriptor() {
+        return this.predicateDescriptor;
+    }
+
+    public String getSelectKeyString(){
+        if (this.getPredicateDescriptor() != null && this.getPredicateDescriptor().getUdfSelectivity() != null){
+            return this.getPredicateDescriptor().getUdfSelectivityKeyString();
+        } else {
+            return "";
+        }
     }
 
     @Override

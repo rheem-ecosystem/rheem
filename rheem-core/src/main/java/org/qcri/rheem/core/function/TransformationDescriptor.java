@@ -1,5 +1,6 @@
 package org.qcri.rheem.core.function;
 
+import org.qcri.rheem.core.optimizer.ProbabilisticDoubleInterval;
 import org.qcri.rheem.core.optimizer.costs.LoadEstimator;
 import org.qcri.rheem.core.optimizer.costs.LoadProfileEstimator;
 import org.qcri.rheem.core.optimizer.costs.NestableLoadProfileEstimator;
@@ -32,6 +33,18 @@ public class TransformationDescriptor<Input, Output> extends FunctionDescriptor 
     public TransformationDescriptor(FunctionDescriptor.SerializableFunction<Input, Output> javaImplementation,
                                     Class<Input> inputTypeClass,
                                     Class<Output> outputTypeClass,
+                                    ProbabilisticDoubleInterval udfSelectivity,
+                                    String udfSelectivityKey) {
+        this(javaImplementation,
+                BasicDataUnitType.createBasic(inputTypeClass),
+                BasicDataUnitType.createBasic(outputTypeClass),
+                udfSelectivity,
+                udfSelectivityKey);
+    }
+
+    public TransformationDescriptor(FunctionDescriptor.SerializableFunction<Input, Output> javaImplementation,
+                                    Class<Input> inputTypeClass,
+                                    Class<Output> outputTypeClass,
                                     LoadProfileEstimator loadProfileEstimator) {
         this(javaImplementation,
                 BasicDataUnitType.createBasic(inputTypeClass),
@@ -53,8 +66,37 @@ public class TransformationDescriptor<Input, Output> extends FunctionDescriptor 
     public TransformationDescriptor(FunctionDescriptor.SerializableFunction<Input, Output> javaImplementation,
                                     BasicDataUnitType<Input> inputType,
                                     BasicDataUnitType<Output> outputType,
+                                    ProbabilisticDoubleInterval udfSelectivity,
+                                    String udfSelectivityKey) {
+        this(javaImplementation, inputType, outputType,
+                new NestableLoadProfileEstimator(
+                        LoadEstimator.createFallback(1, 1),
+                        LoadEstimator.createFallback(1, 1)
+                ),
+                udfSelectivity,
+                udfSelectivityKey
+        );
+    }
+
+    public TransformationDescriptor(FunctionDescriptor.SerializableFunction<Input, Output> javaImplementation,
+                                    BasicDataUnitType<Input> inputType,
+                                    BasicDataUnitType<Output> outputType,
                                     LoadProfileEstimator loadProfileEstimator) {
         super(loadProfileEstimator);
+        this.javaImplementation = javaImplementation;
+        this.inputType = inputType;
+        this.outputType = outputType;
+    }
+
+    public TransformationDescriptor(FunctionDescriptor.SerializableFunction<Input, Output> javaImplementation,
+                                    BasicDataUnitType<Input> inputType,
+                                    BasicDataUnitType<Output> outputType,
+                                    LoadProfileEstimator loadProfileEstimator,
+                                    ProbabilisticDoubleInterval udfSelectivity,
+                                    String udfSelectivityKey) {
+        super(loadProfileEstimator,
+                udfSelectivity,
+                udfSelectivityKey);
         this.javaImplementation = javaImplementation;
         this.inputType = inputType;
         this.outputType = outputType;

@@ -249,7 +249,7 @@ public class Job extends OneTimeExecutable {
                 ));
             }
 
-            // TODO: generate run ID. For now we fix this because we can't handle multiple jobs, neither in montoring nor execution.
+            // TODO: generate run ID. For now we fix this because we can't handle multiple jobs, neither in monitoring nor execution.
             String runId = "1";
             try {
                 monitor.initialize(this.configuration, runId, executionPlan.toJsonList());
@@ -336,7 +336,7 @@ public class Job extends OneTimeExecutable {
 
         this.optimizationRound.start("Cardinality&Load Estimation");
         if (this.cardinalityEstimatorManager == null) {
-            this.optimizationRound.start("Cardinality&Load Estimation", "Create OptimizationContext");
+            this.optimizationRound.start("Cardinality&Load Estimation", "Create c");
             this.optimizationContext = DefaultOptimizationContext.createFrom(this);
             this.optimizationRound.stop("Cardinality&Load Estimation", "Create OptimizationContext");
 
@@ -571,6 +571,7 @@ public class Job extends OneTimeExecutable {
     private void updateExecutionPlan(ExecutionPlan executionPlan) {
         // Defines the plan that we want to use in the end.
         // Find and copy the open Channels.
+        this.logger.info("### JRK: updateExecutionPlan");
         final Set<ExecutionStage> completedStages = this.crossPlatformExecutor.getCompletedStages();
         final Set<ExecutionTask> completedTasks = completedStages.stream()
                 .flatMap(stage -> stage.getAllTasks().stream())
@@ -583,6 +584,7 @@ public class Job extends OneTimeExecutable {
         final PlanEnumerator planEnumerator = this.createPlanEnumerator(executionPlan, openChannels);
         final PlanEnumeration comprehensiveEnumeration = planEnumerator.enumerate(true);
         final Collection<PlanImplementation> executionPlans = comprehensiveEnumeration.getPlanImplementations();
+        this.logger.info("### JRK: Before debug message.");
         this.logger.debug("Enumerated {} plans.", executionPlans.size());
         for (PlanImplementation planImplementation : executionPlans) {
             this.logger.debug("Plan with operators: {}", planImplementation.getOperators());

@@ -133,8 +133,10 @@ class DataQuanta[Out: ClassTag](val operator: ElementaryOperator, outputIndex: I
   def filter(udf: Out => Boolean,
              sqlUdf: String = null,
              selectivity: ProbabilisticDoubleInterval = null,
-             udfLoad: LoadProfileEstimator = null) =
-    filterJava(toSerializablePredicate(udf), sqlUdf, selectivity, udfLoad)
+             udfLoad: LoadProfileEstimator = null,
+             udfSelectivity: ProbabilisticDoubleInterval = null,
+             udfSelectivityKey: String = null) =
+    filterJava(toSerializablePredicate(udf), sqlUdf, selectivity, udfLoad, udfSelectivity, udfSelectivityKey)
 
   /**
     * Feed this instance into a [[FilterOperator]].
@@ -148,9 +150,11 @@ class DataQuanta[Out: ClassTag](val operator: ElementaryOperator, outputIndex: I
   def filterJava(udf: SerializablePredicate[Out],
                  sqlUdf: String = null,
                  selectivity: ProbabilisticDoubleInterval = null,
-                 udfLoad: LoadProfileEstimator = null): DataQuanta[Out] = {
+                 udfLoad: LoadProfileEstimator = null,
+                 udfSelectivity: ProbabilisticDoubleInterval = null,
+                 udfSelectivityKey: String = null): DataQuanta[Out] = {
     val filterOperator = new FilterOperator(new PredicateDescriptor(
-      udf, this.output.getType.getDataUnitType.toBasicDataUnitType, selectivity, udfLoad
+      udf, this.output.getType.getDataUnitType.toBasicDataUnitType, selectivity, udfLoad, udfSelectivity, udfSelectivityKey
     ).withSqlImplementation(sqlUdf))
     this.connectTo(filterOperator, 0)
     filterOperator
@@ -166,8 +170,10 @@ class DataQuanta[Out: ClassTag](val operator: ElementaryOperator, outputIndex: I
     */
   def flatMap[NewOut: ClassTag](udf: Out => Iterable[NewOut],
                                 selectivity: ProbabilisticDoubleInterval = null,
-                                udfLoad: LoadProfileEstimator = null): DataQuanta[NewOut] =
-    flatMapJava(toSerializableFlatteningFunction(udf), selectivity, udfLoad)
+                                udfLoad: LoadProfileEstimator = null,
+                                udfSelectivity: ProbabilisticDoubleInterval = null,
+                                udfSelectivityKey: String = null): DataQuanta[NewOut] =
+    flatMapJava(toSerializableFlatteningFunction(udf), selectivity, udfLoad, udfSelectivity, udfSelectivityKey)
 
   /**
     * Feed this instance into a [[FlatMapOperator]].
@@ -179,9 +185,11 @@ class DataQuanta[Out: ClassTag](val operator: ElementaryOperator, outputIndex: I
     */
   def flatMapJava[NewOut: ClassTag](udf: SerializableFunction[Out, JavaIterable[NewOut]],
                                     selectivity: ProbabilisticDoubleInterval = null,
-                                    udfLoad: LoadProfileEstimator = null): DataQuanta[NewOut] = {
+                                    udfLoad: LoadProfileEstimator = null,
+                                    udfSelectivity: ProbabilisticDoubleInterval = null,
+                                    udfSelectivityKey: String = null): DataQuanta[NewOut] = {
     val flatMapOperator = new FlatMapOperator(new FlatMapDescriptor(
-      udf, basicDataUnitType[Out], basicDataUnitType[NewOut], selectivity, udfLoad
+      udf, basicDataUnitType[Out], basicDataUnitType[NewOut], selectivity, udfLoad, udfSelectivity, udfSelectivityKey
     ))
     this.connectTo(flatMapOperator, 0)
     flatMapOperator
@@ -288,8 +296,10 @@ class DataQuanta[Out: ClassTag](val operator: ElementaryOperator, outputIndex: I
     */
   def reduceByKey[Key: ClassTag](keyUdf: Out => Key,
                                  udf: (Out, Out) => Out,
-                                 udfLoad: LoadProfileEstimator = null): DataQuanta[Out] =
-    reduceByKeyJava(toSerializableFunction(keyUdf), toSerializableBinaryOperator(udf), udfLoad)
+                                 udfLoad: LoadProfileEstimator = null,
+                                 udfSelectivity: ProbabilisticDoubleInterval = null,
+                                 udfSelectivityKey: String = null): DataQuanta[Out] =
+    reduceByKeyJava(toSerializableFunction(keyUdf), toSerializableBinaryOperator(udf), udfLoad, udfSelectivity, udfSelectivityKey)
 
   /**
     * Feed this instance into a [[ReduceByOperator]].
@@ -301,11 +311,13 @@ class DataQuanta[Out: ClassTag](val operator: ElementaryOperator, outputIndex: I
     */
   def reduceByKeyJava[Key: ClassTag](keyUdf: SerializableFunction[Out, Key],
                                      udf: SerializableBinaryOperator[Out],
-                                     udfLoad: LoadProfileEstimator = null)
+                                     udfLoad: LoadProfileEstimator = null,
+                                     udfSelectivity: ProbabilisticDoubleInterval = null,
+                                     udfSelectivityKey: String = null)
   : DataQuanta[Out] = {
     val reduceByOperator = new ReduceByOperator(
       new TransformationDescriptor(keyUdf, basicDataUnitType[Out], basicDataUnitType[Key]),
-      new ReduceDescriptor(udf, groupedDataUnitType[Out], basicDataUnitType[Out], udfLoad)
+      new ReduceDescriptor(udf, groupedDataUnitType[Out], basicDataUnitType[Out], udfLoad, udfSelectivity, udfSelectivityKey)
     )
     this.connectTo(reduceByOperator, 0)
     reduceByOperator
@@ -384,12 +396,20 @@ class DataQuanta[Out: ClassTag](val operator: ElementaryOperator, outputIndex: I
     * @param that the other instance to union with
     * @return a new instance representing the [[UnionAllOperator]]'s output
     */
-  def union(that: DataQuanta[Out]): DataQuanta[Out] = {
+  def union(that: DataQuanta[Out],
+            udfSelectivity: ProbabilisticDoubleInterval = null,
+            udfSelectivityKey: String = null): DataQuanta[Out] = {
     require(this.planBuilder eq that.planBuilder, s"$this and $that must use the same plan builders.")
-    val unionAllOperator = new UnionAllOperator(dataSetType[Out])
+    val unionAllOperator = new UnionAllOperator(dataSetType[Out], new PredicateDescriptor(
+      this.output.getType.getDataUnitType.toBasicDataUnitType, udfSelectivity, udfSelectivityKey
+    ))
     this.connectTo(unionAllOperator, 0)
     that.connectTo(unionAllOperator, 1)
     unionAllOperator
+  }
+
+  def union(that: DataQuanta[Out]): DataQuanta[Out] = {
+    union(that, null, null)
   }
 
   /**
@@ -417,9 +437,11 @@ class DataQuanta[Out: ClassTag](val operator: ElementaryOperator, outputIndex: I
   def join[ThatOut: ClassTag, Key: ClassTag]
   (thisKeyUdf: Out => Key,
    that: DataQuanta[ThatOut],
-   thatKeyUdf: ThatOut => Key)
+   thatKeyUdf: ThatOut => Key,
+   udfSelectivity: ProbabilisticDoubleInterval = null,
+   udfSelectivityKey: String = null)
   : DataQuanta[org.qcri.rheem.basic.data.Tuple2[Out, ThatOut]] =
-    joinJava(toSerializableFunction(thisKeyUdf), that, toSerializableFunction(thatKeyUdf))
+    joinJava(toSerializableFunction(thisKeyUdf), that, toSerializableFunction(thatKeyUdf), udfSelectivity, udfSelectivityKey)
 
   /**
     * Feeds this and a further instance into a [[JoinOperator]].
@@ -438,6 +460,23 @@ class DataQuanta[Out: ClassTag](val operator: ElementaryOperator, outputIndex: I
     val joinOperator = new JoinOperator(
       new TransformationDescriptor(thisKeyUdf, basicDataUnitType[Out], basicDataUnitType[Key]),
       new TransformationDescriptor(thatKeyUdf, basicDataUnitType[ThatOut], basicDataUnitType[Key])
+    )
+    this.connectTo(joinOperator, 0)
+    that.connectTo(joinOperator, 1)
+    joinOperator
+  }
+
+  def joinJava[ThatOut: ClassTag, Key: ClassTag]
+  (thisKeyUdf: SerializableFunction[Out, Key],
+   that: DataQuanta[ThatOut],
+   thatKeyUdf: SerializableFunction[ThatOut, Key],
+   udfSelectivity: ProbabilisticDoubleInterval = null,
+   udfSelectivityKey: String = null)
+  : DataQuanta[org.qcri.rheem.basic.data.Tuple2[Out, ThatOut]] = {
+    require(this.planBuilder eq that.planBuilder, s"$this and $that must use the same plan builders.")
+    val joinOperator = new JoinOperator(
+      new TransformationDescriptor(thisKeyUdf, basicDataUnitType[Out], basicDataUnitType[Key], udfSelectivity, udfSelectivityKey),
+      new TransformationDescriptor(thatKeyUdf, basicDataUnitType[ThatOut], basicDataUnitType[Key], udfSelectivity, udfSelectivityKey)
     )
     this.connectTo(joinOperator, 0)
     that.connectTo(joinOperator, 1)
@@ -546,6 +585,21 @@ class DataQuanta[Out: ClassTag](val operator: ElementaryOperator, outputIndex: I
     this.connectTo(distinctOperator, 0)
     distinctOperator
   }
+
+  def distinctJava(udfSelectivity: ProbabilisticDoubleInterval = null,
+                   udfSelectivityKey: String = null): DataQuanta[Out] = {
+    val distinctOperator = new DistinctOperator(dataSetType[Out], new DistinctPredicateDescriptor(
+      this.output.getType.getDataUnitType.toBasicDataUnitType, udfSelectivity, udfSelectivityKey
+    ))
+    this.connectTo(distinctOperator, 0)
+    distinctOperator
+  }
+
+  def distinct(udfSelectivity: ProbabilisticDoubleInterval = null,
+               udfSelectivityKey: String = null) = {
+    distinctJava(udfSelectivity, udfSelectivityKey)
+  }
+
 
   /**
     * Feeds this instance into a [[CountOperator]].

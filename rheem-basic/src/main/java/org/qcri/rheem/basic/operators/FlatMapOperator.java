@@ -67,6 +67,14 @@ public class FlatMapOperator<InputType, OutputType> extends UnaryToUnaryOperator
         return this.functionDescriptor;
     }
 
+    public String getSelectKeyString(){
+        if (this.getFunctionDescriptor().getUdfSelectivity() != null){
+            return this.getFunctionDescriptor().getUdfSelectivityKeyString();
+        } else {
+            return "";
+        }
+    }
+
     @Override
     public Optional<org.qcri.rheem.core.optimizer.cardinality.CardinalityEstimator> createCardinalityEstimator(
             final int outputIndex,
@@ -84,22 +92,44 @@ public class FlatMapOperator<InputType, OutputType> extends UnaryToUnaryOperator
          * The selectivity of this instance.
          */
         private final ProbabilisticDoubleInterval selectivity;
+        Configuration configuration;
 
         private CardinalityEstimator(Configuration configuration) {
             this.selectivity = configuration
                     .getUdfSelectivityProvider()
                     .provideFor(FlatMapOperator.this.functionDescriptor);
+            this.configuration = configuration;
         }
 
         @Override
         public CardinalityEstimate estimate(OptimizationContext optimizationContext, CardinalityEstimate... inputEstimates) {
             assert FlatMapOperator.this.getNumInputs() == inputEstimates.length;
             final CardinalityEstimate inputEstimate = inputEstimates[0];
-            return new CardinalityEstimate(
-                    (long) (inputEstimate.getLowerEstimate() * this.selectivity.getLowerEstimate()),
-                    (long) (inputEstimate.getUpperEstimate() * this.selectivity.getUpperEstimate()),
-                    inputEstimate.getCorrectnessProbability() * this.selectivity.getCorrectnessProbability()
-            );
+
+            String mode = this.configuration.getStringProperty("rheem.optimizer.sr.mode", "best");
+            if (mode.equals("best")){
+                mode = this.selectivity.getBest();
+            }
+
+            if (mode.equals("lin")) {
+                return new CardinalityEstimate(
+                        (long) Math.max(0, ((inputEstimate.getLowerEstimate() * this.selectivity.getCoeff() + this.selectivity.getIntercept()) * inputEstimate.getLowerEstimate())),
+                        (long) Math.max(0, ((inputEstimate.getUpperEstimate() * this.selectivity.getCoeff() + this.selectivity.getIntercept()) * inputEstimate.getUpperEstimate())),
+                        inputEstimate.getCorrectnessProbability() * this.selectivity.getCorrectnessProbability()
+                );
+            } else if (mode.equals("log")) {
+                return new CardinalityEstimate(
+                        (long) Math.max(0, ((Math.log(inputEstimate.getLowerEstimate()) * this.selectivity.getLog_coeff() + this.selectivity.getLog_intercept()) * inputEstimate.getLowerEstimate())),
+                        (long) Math.max(0, ((Math.log(inputEstimate.getUpperEstimate()) * this.selectivity.getLog_coeff() + this.selectivity.getLog_intercept()) * inputEstimate.getUpperEstimate())),
+                        inputEstimate.getCorrectnessProbability() * this.selectivity.getCorrectnessProbability()
+                );
+            } else {
+                return new CardinalityEstimate(
+                        (long) Math.max(0, (inputEstimate.getLowerEstimate() * this.selectivity.getLowerEstimate())),
+                        (long) Math.max(0, (inputEstimate.getUpperEstimate() * this.selectivity.getUpperEstimate())),
+                        inputEstimate.getCorrectnessProbability() * this.selectivity.getCorrectnessProbability()
+                );
+            }
         }
     }
 }

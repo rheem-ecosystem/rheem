@@ -34,6 +34,10 @@ import java.util.stream.Collectors;
  */
 public interface Operator {
 
+    default String getSelectKeyString(){
+        return "";
+    }
+
     /**
      * @return the number of {@link InputSlot}s of this instance; inclusive of broadcast {@link InputSlot}s
      */
