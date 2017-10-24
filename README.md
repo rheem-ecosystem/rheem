@@ -1,6 +1,7 @@
 # Rheem <img align="right" width="128px" src="http://da.qcri.org/rheem/images/rheem.png" alt="Rheem logo">
 
-[![Build Status](https://jenkins.qcri.org/buildStatus/icon?job=rheem-build)](https://jenkins.qcri.org/job/rheem-build/)
+[![Build Status (Jenkins)](https://jenkins.qcri.org/buildStatus/icon?job=rheem-build)](https://jenkins.qcri.org/job/rheem-build/)
+[![Build Status (Travis)](https://travis-ci.org/rheem-ecosystem/rheem.svg?branch=master)](https://travis-ci.org/rheem-ecosystem/rheem)
 [![Gitter chat](https://badges.gitter.im/rheem-ecosystem/Lobby.png)](https://gitter.im/rheem-ecosystem/Lobby)
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.qcri.rheem/rheem/badge.svg)](https://maven-badges.herokuapp.com/maven-central/org.qcri.rheem/rheem)
 
@@ -27,7 +28,7 @@ Rheem is available via Maven Central. To use it with Maven, for instance, includ
 <dependency> 
   <groupId>org.qcri.rheem</groupId>
   <artifactId>rheem-***</artifactId>
-  <version>0.2.1</version> 
+  <version>0.3.0</version> 
 </dependency>
 ```
 Note the `***`: Rheem ships with multiple modules that can be included in your app, depending on how you want to use it:
