@@ -1,12 +1,22 @@
 package org.qcri.rheem.core.optimizer;
 
+import org.json.JSONObject;
+import org.qcri.rheem.core.api.Configuration;
+import org.qcri.rheem.core.api.exception.RheemException;
+import org.qcri.rheem.core.optimizer.costs.LoadProfileEstimators;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.Objects;
+import java.util.Optional;
 
 /***
  * An value representation that is capable of expressing uncertainty.
  * It addresses uncertainty by expressing estimates as intervals and assigning a probability of correctness (in [0, 1]).
  */
 public class ProbabilisticDoubleInterval {
+
+    private static final Logger logger = LoggerFactory.getLogger(LoadProfileEstimators.class);
 
     /**
      * Instance that basically represents the value {@code 0d}.
@@ -30,6 +40,13 @@ public class ProbabilisticDoubleInterval {
      */
     private final boolean isOverride;
 
+    private final String keyString;
+    private final double coeff;
+    private final double intercept;
+    private final double log_coeff;
+    private final double log_intercept;
+    private final String best;
+
     /**
      * Creates a new instance with a zero-width interval and a confidence of {@code 1}.
      *
@@ -52,6 +69,89 @@ public class ProbabilisticDoubleInterval {
         this.lowerEstimate = lowerEstimate;
         this.upperEstimate = upperEstimate;
         this.isOverride = isOverride;
+
+        this.keyString = "";
+        this.coeff = 0;
+        this.intercept = 0;
+        this.log_coeff = 0;
+        this.log_intercept = 0;
+        this.best = "";
+    }
+
+    public ProbabilisticDoubleInterval(double lowerEstimate, double upperEstimate, double correctnessProb, boolean isOverride, String keyString, double coeff, double intercept, double log_coeff, double log_intercept, String best) {
+        this.keyString = keyString;
+        assert lowerEstimate <= upperEstimate : String.format("%f > %f, which is illegal.", lowerEstimate, upperEstimate);
+        assert correctnessProb >= 0 && correctnessProb <= 1 : String.format("Illegal probability %f.", correctnessProb);
+
+        this.correctnessProb = correctnessProb;
+        this.lowerEstimate = lowerEstimate;
+        this.upperEstimate = upperEstimate;
+        this.isOverride = isOverride;
+        this.coeff = coeff;
+        this.intercept = intercept;
+        this.log_coeff = log_coeff;
+        this.log_intercept = log_intercept;
+        this.best = best;
+    }
+
+
+    public static ProbabilisticDoubleInterval createFromSpecification(String configKey, Configuration configuration) {
+//        final LoadProfileEstimator cachedEstimator =
+//                configuration.getLoadProfileEstimatorCache().optionallyProvideFor(configKey).orElse(null);
+//        if (cachedEstimator != null) return cachedEstimator.copy(); // TODO JRK caching might be necessary
+
+        String[] split = configKey.split("-");
+        configKey = split[0];
+
+        final Optional<String> optSpecification = configuration.getOptionalStringProperty(configKey);
+        if (optSpecification.isPresent()) {
+            final ProbabilisticDoubleInterval interval;
+            String mode = configuration.getStringProperty("rheem.optimizer.sr.mode", "best");
+            interval = ProbabilisticDoubleInterval.createFromSpecification(configKey, optSpecification.get(), mode);
+//            configuration.getLoadProfileEstimatorCache().set(configKey, estimator.copy());
+            return interval;
+        } else {
+            logger.warn("Could not find an selectivity specification associated with '{}'.", configuration);
+            return null;
+        }
+    }
+
+    public static ProbabilisticDoubleInterval createFromSpecification(String configKey, String specification, String mode) {
+        String[] split = configKey.split("-");
+        configKey = split[0];
+        try {
+            final JSONObject spec = new JSONObject(specification);
+            if (!spec.has("type") || "juel".equalsIgnoreCase(spec.getString("type"))) {
+                return createFromJuelSpecification(configKey, spec, mode);
+            } else {
+                throw new RheemException(String.format("Unknown specification type: %s", spec.get("type")));
+            }
+        } catch (Exception e) {
+            throw new RheemException(String.format("Could not initialize from specification \"%s\".", specification), e);
+        }
+    }
+
+    public static ProbabilisticDoubleInterval createFromJuelSpecification(String configKey, JSONObject spec, String mode) {
+        double correctnessProb = spec.getDouble("p");
+        double lower = spec.getDouble("lower");
+        double upper = spec.getDouble("upper");
+        double coeff = spec.getDouble("coeff");
+        double intercept = spec.getDouble("intercept");
+        double log_coeff = spec.getDouble("log_coeff");
+        double log_intercept = spec.getDouble("log_intercept");
+        String best;
+        if (mode.equals("best")) {
+            best = spec.getString("best");
+        } else {
+            best = mode;
+        }
+
+
+        return new ProbabilisticDoubleInterval(lower, upper, correctnessProb, configKey, coeff, intercept, log_coeff, log_intercept, best);
+    }
+
+    public ProbabilisticDoubleInterval(double lowerEstimate, double upperEstimate, double correctnessProb, String keyString, double coeff, double intercept, double log_coeff, double log_intercept, String best) {
+        this(lowerEstimate, upperEstimate, correctnessProb, false, keyString, coeff, intercept, log_coeff, log_intercept, best);
     }
 
     public double getLowerEstimate() {
@@ -60,6 +160,26 @@ public class ProbabilisticDoubleInterval {
 
     public double getUpperEstimate() {
         return this.upperEstimate;
+    }
+
+    public double getCoeff() {
+        return this.coeff;
+    }
+
+    public double getIntercept() {
+        return this.intercept;
+    }
+
+    public double getLog_coeff() {
+        return this.log_coeff;
+    }
+
+    public double getLog_intercept() {
+        return this.log_intercept;
+    }
+
+    public String getBest() {
+        return this.best;
     }
 
     public double getAverageEstimate() {
@@ -131,8 +251,10 @@ public class ProbabilisticDoubleInterval {
 
     @Override
     public String toString() {
-        return String.format("(%,.2f..%,.2f ~ %.1f%%)",
+        String s = String.format("(%,.2f..%,.2f ~ %.1f%%)",
                 this.lowerEstimate, this.upperEstimate, this.correctnessProb * 100d);
+        s = s.concat(" selecitvityKey: " + this.keyString);
+        return s;
     }
 
 }

@@ -3,8 +3,12 @@ package org.qcri.rheem.basic.operators;
 import org.apache.commons.lang3.Validate;
 import org.qcri.rheem.core.api.Configuration;
 import org.qcri.rheem.core.function.FunctionDescriptor;
+import org.qcri.rheem.core.function.PredicateDescriptor;
 import org.qcri.rheem.core.function.ReduceDescriptor;
 import org.qcri.rheem.core.function.TransformationDescriptor;
+import org.qcri.rheem.core.optimizer.OptimizationContext;
+import org.qcri.rheem.core.optimizer.ProbabilisticDoubleInterval;
+import org.qcri.rheem.core.optimizer.cardinality.CardinalityEstimate;
 import org.qcri.rheem.core.optimizer.cardinality.CardinalityEstimator;
 import org.qcri.rheem.core.optimizer.cardinality.DefaultCardinalityEstimator;
 import org.qcri.rheem.core.plan.rheemplan.UnaryToUnaryOperator;
@@ -81,17 +85,71 @@ public class ReduceByOperator<Type, Key> extends UnaryToUnaryOperator<Type, Type
         return this.reduceDescriptor;
     }
 
+    public String getSelectKeyString(){
+        if (this.getReduceDescriptor().getUdfSelectivity() != null){
+            return this.getReduceDescriptor().getUdfSelectivityKeyString();
+        } else {
+            return "";
+        }
+    }
+
 
     @Override
-    public Optional<CardinalityEstimator> createCardinalityEstimator(
+    public Optional<org.qcri.rheem.core.optimizer.cardinality.CardinalityEstimator> createCardinalityEstimator(
             final int outputIndex,
             final Configuration configuration) {
         Validate.inclusiveBetween(0, this.getNumOutputs() - 1, outputIndex);
         // TODO: Come up with a decent way to estimate the "distinctness" of reduction keys.
-        return Optional.of(new DefaultCardinalityEstimator(
-                0.5d,
-                1,
-                this.isSupportingBroadcastInputs(),
-                inputCards -> (long) (inputCards[0] * 0.1)));
+        return Optional.of(new ReduceByOperator.CardinalityEstimator(configuration));
+    }
+
+
+    private class CardinalityEstimator implements org.qcri.rheem.core.optimizer.cardinality.CardinalityEstimator {
+
+        /**
+         * The expected selectivity to be applied in this instance.
+         */
+        private final ProbabilisticDoubleInterval selectivity;
+        Configuration configuration; //1
+
+        public CardinalityEstimator(Configuration configuration) {
+            this.selectivity = configuration.getUdfSelectivityProvider().provideFor(ReduceByOperator.this.reduceDescriptor);
+            this.configuration = configuration; //2
+        }
+
+        @Override
+        public CardinalityEstimate estimate(OptimizationContext optimizationContext, CardinalityEstimate... inputEstimates) {
+            Validate.isTrue(inputEstimates.length == ReduceByOperator.this.getNumInputs());
+            final CardinalityEstimate inputEstimate = inputEstimates[0];
+
+            //3
+
+                String mode = this.configuration.getStringProperty("rheem.optimizer.sr.mode", "best");
+                if (mode.equals("best")){
+                    mode = this.selectivity.getBest();
+                }
+
+
+
+            if (mode.equals("lin")) {
+                return new CardinalityEstimate(
+                        (long)  Math.max(0, ((inputEstimate.getLowerEstimate() * this.selectivity.getCoeff() + this.selectivity.getIntercept()) * inputEstimate.getLowerEstimate())),
+                        (long) Math.max(0, ((inputEstimate.getUpperEstimate() * this.selectivity.getCoeff() + this.selectivity.getIntercept()) * inputEstimate.getUpperEstimate())),
+                        inputEstimate.getCorrectnessProbability() * this.selectivity.getCorrectnessProbability()
+                );
+            } else if (mode.equals("log")) {
+                return new CardinalityEstimate(
+                        (long) Math.max(0, ((Math.log(inputEstimate.getLowerEstimate()) * this.selectivity.getLog_coeff() + this.selectivity.getLog_intercept()) * inputEstimate.getLowerEstimate())),
+                        (long) Math.max(0, ((Math.log(inputEstimate.getUpperEstimate()) * this.selectivity.getLog_coeff() + this.selectivity.getLog_intercept()) * inputEstimate.getUpperEstimate())),
+                        inputEstimate.getCorrectnessProbability() * this.selectivity.getCorrectnessProbability()
+                );
+            } else {
+                return new CardinalityEstimate(
+                        (long) Math.max(0, (inputEstimate.getLowerEstimate() * this.selectivity.getLowerEstimate())),
+                        (long) Math.max(0, (inputEstimate.getUpperEstimate() * this.selectivity.getUpperEstimate())),
+                        inputEstimate.getCorrectnessProbability() * this.selectivity.getCorrectnessProbability()
+                );
+            }
+        }
     }
 }

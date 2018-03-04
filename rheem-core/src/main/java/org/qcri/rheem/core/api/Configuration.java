@@ -4,10 +4,7 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.qcri.rheem.core.api.configuration.*;
 import org.qcri.rheem.core.api.exception.RheemException;
-import org.qcri.rheem.core.function.FlatMapDescriptor;
-import org.qcri.rheem.core.function.FunctionDescriptor;
-import org.qcri.rheem.core.function.MapPartitionsDescriptor;
-import org.qcri.rheem.core.function.PredicateDescriptor;
+import org.qcri.rheem.core.function.*;
 import org.qcri.rheem.core.mapping.Mapping;
 import org.qcri.rheem.core.optimizer.ProbabilisticDoubleInterval;
 import org.qcri.rheem.core.optimizer.cardinality.CardinalityEstimate;
@@ -315,10 +312,16 @@ public class Configuration {
                             functionDescriptor -> {
                                 if (functionDescriptor instanceof PredicateDescriptor) {
                                     return new ProbabilisticDoubleInterval(0.1, 1, 0.9d);
+                                } else if (functionDescriptor instanceof DistinctPredicateDescriptor) {
+                                    return new ProbabilisticDoubleInterval(0.7, 0.7, 0.9d);
                                 } else if (functionDescriptor instanceof FlatMapDescriptor) {
                                     return new ProbabilisticDoubleInterval(0.1, 1, 0.9d);
                                 } else if (functionDescriptor instanceof MapPartitionsDescriptor) {
                                     return new ProbabilisticDoubleInterval(0.1, 1, 0.9d);
+                                } else if (functionDescriptor instanceof ReduceDescriptor) {
+                                    return new ProbabilisticDoubleInterval(0.1, 1, 0.9d);
+                                } else if (functionDescriptor instanceof TransformationDescriptor) { // TODO JRK: Do not make baseline worse
+                                    return new ProbabilisticDoubleInterval(3, 3, 0.9d);
                                 } else {
                                     throw new RheemException("Cannot provide fallback selectivity for " + functionDescriptor);
                                 }
@@ -330,7 +333,7 @@ public class Configuration {
             KeyValueProvider<FunctionDescriptor, ProbabilisticDoubleInterval> builtInProvider =
                     new FunctionalKeyValueProvider<>(
                             fallbackProvider,
-                            functionDescriptor -> FunctionDescriptor.getSelectivity(functionDescriptor).orElse(null)
+                            functionDescriptor -> functionDescriptor.getUdfSelectivity().orElse(null)
                     );
 
             // Customizable layer: Users can override manually.

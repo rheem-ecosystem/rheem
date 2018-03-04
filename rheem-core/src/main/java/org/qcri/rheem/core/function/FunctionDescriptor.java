@@ -18,17 +18,46 @@ import java.util.function.Predicate;
 public abstract class FunctionDescriptor {
 
     private LoadProfileEstimator loadProfileEstimator;
+    private ProbabilisticDoubleInterval udfSelectivity;
+    private String udfSelectivityKey;
 
     public FunctionDescriptor(LoadProfileEstimator loadProfileEstimator) {
         this.setLoadProfileEstimator(loadProfileEstimator);
+    }
+
+    public FunctionDescriptor(LoadProfileEstimator loadProfileEstimator, ProbabilisticDoubleInterval udfSelectivity, String udfSelectivityKey) {
+        this.setLoadProfileEstimator(loadProfileEstimator);
+        this.setUdfSelectivity(udfSelectivity);
+        this.setUdfSelectivityKey(udfSelectivityKey);
+    }
+
+    public FunctionDescriptor(ProbabilisticDoubleInterval udfSelectivity, String udfSelectivityKey) {
+        this.setUdfSelectivity(udfSelectivity);
+        this.setUdfSelectivityKey(udfSelectivityKey);
     }
 
     public void setLoadProfileEstimator(LoadProfileEstimator loadProfileEstimator) {
         this.loadProfileEstimator = loadProfileEstimator;
     }
 
+    public void setUdfSelectivity(ProbabilisticDoubleInterval udfSelectivity) {
+        this.udfSelectivity = udfSelectivity;
+    }
+
+    public void setUdfSelectivityKey(String udfSelectivityKey) {
+        this.udfSelectivityKey = udfSelectivityKey;
+    }
+
     public Optional<LoadProfileEstimator> getLoadProfileEstimator() {
         return Optional.ofNullable(this.loadProfileEstimator);
+    }
+
+    public Optional<ProbabilisticDoubleInterval> getUdfSelectivity() {
+        return Optional.ofNullable(this.udfSelectivity);
+    }
+
+    public String getUdfSelectivityKeyString() {
+        return this.udfSelectivityKey;
     }
 
     /**
