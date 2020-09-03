@@ -10,7 +10,6 @@
     <artifactId>rheem-platforms</artifactId>
     <packaging>pom</packaging>
     <modules>
-        <module>rheem-java</module>
         <module>rheem-spark</module>
     </modules>
 
