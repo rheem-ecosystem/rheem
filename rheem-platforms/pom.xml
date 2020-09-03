@@ -13,7 +13,6 @@
         <module>rheem-java</module>
         <module>rheem-spark</module>
         <module>rheem-graphchi</module>
-        <module>rheem-jdbc-template</module>
         <module>rheem-giraph</module>
         <module>rheem-flink</module>
     </modules>
