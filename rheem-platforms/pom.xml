@@ -15,7 +15,6 @@
         <module>rheem-postgres</module>
         <module>rheem-graphchi</module>
         <module>rheem-jdbc-template</module>
-        <module>rheem-sqlite3</module>
         <module>rheem-giraph</module>
         <module>rheem-flink</module>
     </modules>
