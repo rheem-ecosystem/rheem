@@ -17,7 +17,7 @@
         <external.platforms.scope>provided</external.platforms.scope>
     </properties>
 
-    <groupId>io.rheem.rheem</groupId>
+    <groupId>io.rheem</groupId>
     <artifactId>rheem</artifactId>
     <packaging>pom</packaging>
     <version>1.0.0-SNAPSHOT</version>

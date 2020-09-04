@@ -2,7 +2,7 @@
 
 [![Build Status (Travis)](https://travis-ci.org/rheem-ecosystem/rheem.svg?branch=master)](https://travis-ci.org/rheem-ecosystem/rheem)
 [![Gitter chat](https://badges.gitter.im/rheem-ecosystem/Lobby.png)](https://gitter.im/rheem-ecosystem/Lobby)
-[![Maven Central](https://maven-badges.herokuapp.com/maven-central/io.rheem.rheem/rheem/badge.svg)](https://maven-badges.herokuapp.com/maven-central/io.rheem.rheem/rheem)
+[![Maven Central](https://maven-badges.herokuapp.com/maven-central/io.rheem/rheem/badge.svg)](https://maven-badges.herokuapp.com/maven-central/io.rheem/rheem)
 
 #### Turning the Zoo of Data Processing Systems into a Circus
 
@@ -25,7 +25,7 @@ Rheem is built with Java 8 and Scala 2.11. However, to execute Rheem it is suffi
 Rheem is available via Maven Central. To use it with Maven, for instance, include the following into you POM file:
 ```xml
 <dependency> 
-  <groupId>io.rheem.rheem</groupId>
+  <groupId>io.rheem</groupId>
   <artifactId>rheem-***</artifactId>
   <version>0.3.0</version> 
 </dependency>
@@ -74,7 +74,7 @@ You can find the most relevant settings in the following:
   * `rheem.core.log.enabled (= true)`: whether to log execution statistics to allow learning better cardinality and cost estimators for the optimizer
   * `rheem.core.log.executions (= ~/.rheem/executions.json)` where to log execution times of operator groups
   * `rheem.core.log.cardinalities (= ~/.rheem/cardinalities.json)` where to log cardinality measurements
-  * `rheem.core.optimizer.instrumentation (= io.rheem.rheem.core.profiling.OutboundInstrumentationStrategy)`: where to measure cardinalities in Rheem plans; other options are `io.rheem.rheem.core.profiling.NoInstrumentationStrategy` and `io.rheem.rheem.core.profiling.FullInstrumentationStrategy`
+  * `rheem.core.optimizer.instrumentation (= io.rheem.core.profiling.OutboundInstrumentationStrategy)`: where to measure cardinalities in Rheem plans; other options are `io.rheem.core.profiling.NoInstrumentationStrategy` and `io.rheem.core.profiling.FullInstrumentationStrategy`
   * `rheem.core.optimizer.reoptimize (= false)`: whether to progressively optimize Rheem plans
   * `rheem.basic.tempdir (= file:///tmp)`: where to store temporary files, in particular for inter-platform communication
 * Java Streams
@@ -130,7 +130,7 @@ In particular, you can use
 While Rheem specifies templates for all execution operators, you will need to specify that your UDFs are modelled by some configuration-based cost function (see the k-means example below) and create the according initial specification and template yourself.
 Once, you gathered execution data, you can run
 ```shell
-java ... io.rheem.rheem.profiler.ga.GeneticOptimizerApp [configuration URL [execution log]]
+java ... io.rheem.profiler.ga.GeneticOptimizerApp [configuration URL [execution log]]
 ```
 This app will try to find appropriate values for the question marks (`?`) in the load profile estimator templates to fit the gathered execution data and ready-made configuration entries for the load profile estimators.
 You can then copy them into your configuration.
@@ -145,13 +145,13 @@ The "Hello World!" of data processing systems is the wordcount.
 
 #### Java API
 ```java
-import io.rheem.rheem.api.JavaPlanBuilder;
-import io.rheem.rheem.basic.data.Tuple2;
-import io.rheem.rheem.core.api.Configuration;
-import io.rheem.rheem.core.api.RheemContext;
-import io.rheem.rheem.core.optimizer.cardinality.DefaultCardinalityEstimator;
-import io.rheem.rheem.java.Java;
-import io.rheem.rheem.spark.Spark;
+import io.rheem.api.JavaPlanBuilder;
+import io.rheem.basic.data.Tuple2;
+import io.rheem.core.api.Configuration;
+import io.rheem.core.api.RheemContext;
+import io.rheem.core.optimizer.cardinality.DefaultCardinalityEstimator;
+import io.rheem.java.Java;
+import io.rheem.spark.Spark;
 import java.util.Collection;
 import java.util.Arrays;
 
@@ -207,10 +207,10 @@ public class WordcountJava {
 #### Scala API
 
 ```scala
-import io.rheem.rheem.api._
-import io.rheem.rheem.core.api.{Configuration, RheemContext}
-import io.rheem.rheem.java.Java
-import io.rheem.rheem.spark.Spark
+import io.rheem.api._
+import io.rheem.core.api.{Configuration, RheemContext}
+import io.rheem.java.Java
+import io.rheem.spark.Spark
 
 object WordcountScala {
   def main(args: Array[String]) {
@@ -258,13 +258,13 @@ Rheem is also capable of iterative processing, which is, e.g., very important fo
 #### Scala API
 
 ```scala
-import io.rheem.rheem.api._
-import io.rheem.rheem.core.api.{Configuration, RheemContext}
-import io.rheem.rheem.core.function.FunctionDescriptor.ExtendedSerializableFunction
-import io.rheem.rheem.core.function.ExecutionContext
-import io.rheem.rheem.core.optimizer.costs.LoadProfileEstimators
-import io.rheem.rheem.java.Java
-import io.rheem.rheem.spark.Spark
+import io.rheem.api._
+import io.rheem.core.api.{Configuration, RheemContext}
+import io.rheem.core.function.FunctionDescriptor.ExtendedSerializableFunction
+import io.rheem.core.function.ExecutionContext
+import io.rheem.core.optimizer.costs.LoadProfileEstimators
+import io.rheem.java.Java
+import io.rheem.spark.Spark
 
 import scala.util.Random
 import scala.collection.JavaConversions._
