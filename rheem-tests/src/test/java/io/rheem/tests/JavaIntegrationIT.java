@@ -1,5 +1,6 @@
 package io.rheem.tests;
 
+import io.rheem.platforms.PlatformPlugins;
 import org.junit.Assert;
 import org.junit.Test;
 import io.rheem.basic.RheemBasics;
@@ -19,7 +20,6 @@ import io.rheem.core.plan.rheemplan.RheemPlan;
 import io.rheem.core.types.DataSetType;
 import io.rheem.core.types.DataUnitType;
 import io.rheem.core.util.RheemCollections;
-import io.rheem.java.Java;
 import io.rheem.tests.platform.MyMadeUpPlatform;
 
 import java.io.IOException;
@@ -49,7 +49,7 @@ public class JavaIntegrationIT {
         RheemPlan rheemPlan = RheemPlans.readWrite(RheemPlans.FILE_SOME_LINES_TXT, collector);
 
         // Instantiate Rheem and activate the Java backend.
-        RheemContext rheemContext = new RheemContext().with(Java.basicPlugin());
+        RheemContext rheemContext = new RheemContext().with(PlatformPlugins.Java.basicPlugin());
 
         // Have Rheem execute the plan.
         rheemContext.execute(rheemPlan);
@@ -65,7 +65,7 @@ public class JavaIntegrationIT {
         final RheemPlan rheemPlan = RheemPlans.readTransformWrite(RheemPlans.FILE_SOME_LINES_TXT);
 
         // Instantiate Rheem and activate the Java backend.
-        RheemContext rheemContext = new RheemContext().with(Java.basicPlugin());
+        RheemContext rheemContext = new RheemContext().with(PlatformPlugins.Java.basicPlugin());
 
         // Have Rheem execute the plan.
         rheemContext.execute(rheemPlan);
@@ -79,7 +79,7 @@ public class JavaIntegrationIT {
         rheemPlan.getSinks().forEach(sink -> sink.addTargetPlatform(MyMadeUpPlatform.getInstance()));
 
         // Instantiate Rheem and activate the Java backend.
-        RheemContext rheemContext = new RheemContext().with(Java.basicPlugin());
+        RheemContext rheemContext = new RheemContext().with(PlatformPlugins.Java.basicPlugin());
 
         // Have Rheem execute the plan.
         rheemContext.execute(rheemPlan);
@@ -107,12 +107,12 @@ public class JavaIntegrationIT {
         final RheemPlan rheemPlan = RheemPlans.readTransformWrite(RheemPlans.FILE_SOME_LINES_TXT);
 
         // Instantiate Rheem and activate the Java backend.
-        RheemContext rheemContext = new RheemContext().with(Java.basicPlugin());
+        RheemContext rheemContext = new RheemContext().with(PlatformPlugins.Java.basicPlugin());
 
         // Have Rheem execute the plan.
         final Job job = rheemContext.createJob(null, rheemPlan);
         // ILLEGAL: We blacklist the Java platform, although we need it.
-        job.getConfiguration().getPlatformProvider().addToBlacklist(Java.platform());
+        job.getConfiguration().getPlatformProvider().addToBlacklist(PlatformPlugins.Java.platform());
         job.getConfiguration().getPlatformProvider().addToWhitelist(MyMadeUpPlatform.getInstance());
         job.execute();
     }
@@ -127,7 +127,7 @@ public class JavaIntegrationIT {
         final RheemPlan rheemPlan = RheemPlans.multiSourceMultiSink(collection1, collection2, collector1, collector2);
 
         // Instantiate Rheem and activate the Java backend.
-        RheemContext rheemContext = new RheemContext().with(Java.basicPlugin());
+        RheemContext rheemContext = new RheemContext().with(PlatformPlugins.Java.basicPlugin());
 
         // Have Rheem execute the plan.
         rheemContext.execute(rheemPlan);
@@ -156,7 +156,7 @@ public class JavaIntegrationIT {
         final RheemPlan rheemPlan = RheemPlans.multiSourceHoleMultiSink(collection1, collection2, collector1, collector2);
 
         // Instantiate Rheem and activate the Java backend.
-        RheemContext rheemContext = new RheemContext().with(Java.basicPlugin());
+        RheemContext rheemContext = new RheemContext().with(PlatformPlugins.Java.basicPlugin());
 
         // Have Rheem execute the plan.
         rheemContext.execute(rheemPlan);
@@ -179,7 +179,7 @@ public class JavaIntegrationIT {
         RheemPlan rheemPlan = RheemPlans.globalMaterializedGroup(collector, 1, 2, 3);
 
         // Instantiate Rheem and activate the Java backend.
-        RheemContext rheemContext = new RheemContext().with(Java.basicPlugin());
+        RheemContext rheemContext = new RheemContext().with(PlatformPlugins.Java.basicPlugin());
 
         rheemContext.execute(rheemPlan);
 
@@ -195,7 +195,7 @@ public class JavaIntegrationIT {
 
         // Instantiate Rheem and activate the Java backend.
         RheemContext rheemContext = new RheemContext();
-        rheemContext.register(Java.basicPlugin());
+        rheemContext.register(PlatformPlugins.Java.basicPlugin());
 
         rheemContext.execute(rheemPlan);
 
@@ -210,7 +210,7 @@ public class JavaIntegrationIT {
 
         // Instantiate Rheem and activate the Java backend.
         RheemContext rheemContext = new RheemContext()
-                .with(Java.basicPlugin());
+                .with(PlatformPlugins.Java.basicPlugin());
 
         rheemContext.execute(rheemPlan);
 
@@ -235,7 +235,7 @@ public class JavaIntegrationIT {
 
         // Execute the plan with a certain backend.
         RheemContext rheemContext = new RheemContext()
-                .with(Java.basicPlugin())
+                .with(PlatformPlugins.Java.basicPlugin())
                 .with(RheemBasics.graphPlugin());
         rheemContext.execute(rheemPlan);
 
@@ -265,8 +265,8 @@ public class JavaIntegrationIT {
 
         // Execute the plan with a certain backend.
         RheemContext rheemContext = new RheemContext()
-                .with(Java.basicPlugin())
-                .with(Java.graphPlugin());
+                .with(PlatformPlugins.Java.basicPlugin())
+                .with(PlatformPlugins.Java.graphPlugin());
         rheemContext.execute(rheemPlan);
 
         // Check the results.
@@ -281,7 +281,7 @@ public class JavaIntegrationIT {
     @Test
     public void testMapPartitions() throws URISyntaxException {
         // Instantiate Rheem and activate the Java backend.
-        RheemContext rheemContext = new RheemContext().with(Java.basicPlugin());
+        RheemContext rheemContext = new RheemContext().with(PlatformPlugins.Java.basicPlugin());
 
         // Execute the Rheem plan.
         final Collection<Tuple2<String, Integer>> result = RheemPlans.mapPartitions(rheemContext, 0, 1, 1, 3, 3, 4, 4, 5, 5, 6);
@@ -299,7 +299,7 @@ public class JavaIntegrationIT {
         RheemPlan rheemPlan = RheemPlans.zipWithId(collector, 0, 10, 20, 30, 30);
 
         // Instantiate Rheem and activate the Java backend.
-        RheemContext rheemContext = new RheemContext().with(Java.basicPlugin());
+        RheemContext rheemContext = new RheemContext().with(PlatformPlugins.Java.basicPlugin());
 
         rheemContext.execute(rheemPlan);
 
@@ -314,7 +314,7 @@ public class JavaIntegrationIT {
 
         // Instantiate Rheem and activate the Java backend.
         RheemContext rheemContext = new RheemContext();
-        rheemContext.register(Java.basicPlugin());
+        rheemContext.register(PlatformPlugins.Java.basicPlugin());
 
         rheemContext.execute(rheemPlan);
     }
@@ -325,7 +325,7 @@ public class JavaIntegrationIT {
         RheemPlan rheemPlan = RheemPlans.diverseScenario2(RheemPlans.FILE_SOME_LINES_TXT, RheemPlans.FILE_OTHER_LINES_TXT);
 
         // Instantiate Rheem and activate the Java backend.
-        RheemContext rheemContext = new RheemContext().with(Java.basicPlugin());
+        RheemContext rheemContext = new RheemContext().with(PlatformPlugins.Java.basicPlugin());
 
         rheemContext.execute(rheemPlan);
     }
@@ -336,7 +336,7 @@ public class JavaIntegrationIT {
         RheemPlan rheemPlan = RheemPlans.diverseScenario3(RheemPlans.FILE_SOME_LINES_TXT, RheemPlans.FILE_OTHER_LINES_TXT);
 
         // Instantiate Rheem and activate the Java backend.
-        RheemContext rheemContext = new RheemContext().with(Java.basicPlugin());
+        RheemContext rheemContext = new RheemContext().with(PlatformPlugins.Java.basicPlugin());
 
         rheemContext.execute(rheemPlan);
     }
@@ -347,7 +347,7 @@ public class JavaIntegrationIT {
         RheemPlan rheemPlan = RheemPlans.diverseScenario4(RheemPlans.FILE_SOME_LINES_TXT, RheemPlans.FILE_OTHER_LINES_TXT);
 
         // Instantiate Rheem and activate the Java backend.
-        RheemContext rheemContext = new RheemContext().with(Java.basicPlugin());
+        RheemContext rheemContext = new RheemContext().with(PlatformPlugins.Java.basicPlugin());
 
         rheemContext.execute(rheemPlan);
     }
@@ -359,7 +359,7 @@ public class JavaIntegrationIT {
         RheemPlan rheemPlan = RheemPlans.simpleLoop(3, collector, 0, 1, 2);
 
         // Instantiate Rheem and activate the Java backend.
-        RheemContext rheemContext = new RheemContext().with(Java.basicPlugin());
+        RheemContext rheemContext = new RheemContext().with(PlatformPlugins.Java.basicPlugin());
 
         rheemContext.execute(rheemPlan);
         System.out.println(collector);
@@ -372,7 +372,7 @@ public class JavaIntegrationIT {
         RheemPlan rheemPlan = RheemPlans.simpleSample(3, collector, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9);
 
         // Instantiate Rheem and activate the Java backend.
-        RheemContext rheemContext = new RheemContext().with(Java.basicPlugin());
+        RheemContext rheemContext = new RheemContext().with(PlatformPlugins.Java.basicPlugin());
 
         rheemContext.execute(rheemPlan);
         System.out.println(collector);
@@ -385,7 +385,7 @@ public class JavaIntegrationIT {
         RheemPlan rheemPlan = RheemPlans.simpleSample(15, collector, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9);
 
         // Instantiate Rheem and activate the Java backend.
-        RheemContext rheemContext = new RheemContext().with(Java.basicPlugin());
+        RheemContext rheemContext = new RheemContext().with(PlatformPlugins.Java.basicPlugin());
 
         rheemContext.execute(rheemPlan);
         System.out.println(collector);
@@ -393,7 +393,7 @@ public class JavaIntegrationIT {
 
     @Test
     public void testCurrentIterationNumber() {
-        RheemContext rheemContext = new RheemContext().with(Java.basicPlugin());
+        RheemContext rheemContext = new RheemContext().with(PlatformPlugins.Java.basicPlugin());
         final Collection<Integer> result = RheemPlans.loopWithIterationNumber(rheemContext, 15, 5, -1, 1, 5);
         int expectedOffset = 5 * 4 / 2;
         Assert.assertEquals(
@@ -404,7 +404,7 @@ public class JavaIntegrationIT {
 
     @Test
     public void testCurrentIterationNumberWithTooFewExpectedIterations() {
-        RheemContext rheemContext = new RheemContext().with(Java.basicPlugin());
+        RheemContext rheemContext = new RheemContext().with(PlatformPlugins.Java.basicPlugin());
         final Collection<Integer> result = RheemPlans.loopWithIterationNumber(rheemContext, 15, 2, -1, 1, 5);
         int expectedOffset = 5 * 4 / 2;
         Assert.assertEquals(
@@ -453,7 +453,7 @@ public class JavaIntegrationIT {
         RheemPlan rheemPlan = new RheemPlan(collectingSink);
 
         // Instantiate Rheem and activate the Java backend.
-        RheemContext rheemContext = new RheemContext().with(Java.basicPlugin());
+        RheemContext rheemContext = new RheemContext().with(PlatformPlugins.Java.basicPlugin());
 
         rheemContext.execute(rheemPlan);
 
@@ -505,7 +505,7 @@ public class JavaIntegrationIT {
         RheemPlan rheemPlan = new RheemPlan(collectingSink);
 
         // Instantiate Rheem and activate the Java backend.
-        RheemContext rheemContext = new RheemContext().with(Java.basicPlugin());
+        RheemContext rheemContext = new RheemContext().with(PlatformPlugins.Java.basicPlugin());
 
         rheemContext.execute(rheemPlan);
 

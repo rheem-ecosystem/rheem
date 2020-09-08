@@ -20,6 +20,7 @@ import io.rheem.basic.operators.PageRankOperator;
 import io.rheem.basic.operators.RepeatOperator;
 import io.rheem.basic.operators.SampleOperator;
 import io.rheem.basic.operators.SortOperator;
+import io.rheem.basic.operators.TableSource;
 import io.rheem.basic.operators.TextFileSource;
 import io.rheem.basic.operators.UnionAllOperator;
 import io.rheem.basic.operators.ZipWithIdOperator;
@@ -37,9 +38,6 @@ import io.rheem.core.types.DataUnitType;
 import io.rheem.core.util.ReflectionUtils;
 import io.rheem.core.util.RheemArrays;
 import io.rheem.core.util.Tuple;
-import io.rheem.spark.operators.SparkShufflePartitionSampleOperator;
-import io.rheem.sqlite3.Sqlite3;
-import io.rheem.sqlite3.operators.Sqlite3TableSource;
 
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -368,47 +366,49 @@ public class RheemPlans {
         return new RheemPlan(sink);
     }
 
-    public static RheemPlan sampleInLoop(int sampleSize, int iterations, Collection<Integer> collector, final int... inputValues) {
-
-        // Prepare test data.
-        CollectionSource<Integer> source = new CollectionSource<>(RheemArrays.asList(inputValues), Integer.class);
-        source.setName("source");
-
-        CollectionSource<Integer> convergenceSource = new CollectionSource<>(RheemArrays.asList(0), Integer.class);
-        convergenceSource.setName("convergenceSource");
-
-
-        LoopOperator<Integer, Integer> loopOperator = new LoopOperator<>(DataSetType.createDefault(Integer.class),
-                DataSetType.createDefault(Integer.class),
-                (PredicateDescriptor.SerializablePredicate<Collection<Integer>>) collection ->
-                        collection.iterator().next() >= iterations, iterations
-        );
-        loopOperator.setName("loop");
-        loopOperator.initialize(source, convergenceSource);
-
-        // Build the sample operator.
-        SparkShufflePartitionSampleOperator<Integer> sampleOperator =
-                new SparkShufflePartitionSampleOperator<>(
-                        iterationNumber -> sampleSize,
-                        DataSetType.createDefaultUnchecked(Integer.class),
-                        iterationNumber -> 42 + iterationNumber
-                );
-        sampleOperator.setDatasetSize(10);
-        sampleOperator.setName("sample");
-
-        MapOperator<Integer, Integer> counter = new MapOperator<>(
-                new TransformationDescriptor<>(n -> n + 1, Integer.class, Integer.class)
-        );
-        counter.setName("counter");
-        loopOperator.beginIteration(sampleOperator, counter);
-        loopOperator.endIteration(sampleOperator, counter);
-
-        LocalCallbackSink<Integer> sink = LocalCallbackSink.createCollectingSink(collector, Integer.class);
-        sink.setName("sink");
-        loopOperator.outputConnectTo(sink);
-
-        return new RheemPlan(sink);
-    }
+//TODO: search how to incorporate the other platforms
+//
+//    public static RheemPlan sampleInLoop(int sampleSize, int iterations, Collection<Integer> collector, final int... inputValues) {
+//
+//        // Prepare test data.
+//        CollectionSource<Integer> source = new CollectionSource<>(RheemArrays.asList(inputValues), Integer.class);
+//        source.setName("source");
+//
+//        CollectionSource<Integer> convergenceSource = new CollectionSource<>(RheemArrays.asList(0), Integer.class);
+//        convergenceSource.setName("convergenceSource");
+//
+//
+//        LoopOperator<Integer, Integer> loopOperator = new LoopOperator<>(DataSetType.createDefault(Integer.class),
+//                DataSetType.createDefault(Integer.class),
+//                (PredicateDescriptor.SerializablePredicate<Collection<Integer>>) collection ->
+//                        collection.iterator().next() >= iterations, iterations
+//        );
+//        loopOperator.setName("loop");
+//        loopOperator.initialize(source, convergenceSource);
+//
+//        // Build the sample operator.
+//        SparkShufflePartitionSampleOperator<Integer> sampleOperator =
+//                new SparkShufflePartitionSampleOperator<>(
+//                        iterationNumber -> sampleSize,
+//                        DataSetType.createDefaultUnchecked(Integer.class),
+//                        iterationNumber -> 42 + iterationNumber
+//                );
+//        sampleOperator.setDatasetSize(10);
+//        sampleOperator.setName("sample");
+//
+//        MapOperator<Integer, Integer> counter = new MapOperator<>(
+//                new TransformationDescriptor<>(n -> n + 1, Integer.class, Integer.class)
+//        );
+//        counter.setName("counter");
+//        loopOperator.beginIteration(sampleOperator, counter);
+//        loopOperator.endIteration(sampleOperator, counter);
+//
+//        LocalCallbackSink<Integer> sink = LocalCallbackSink.createCollectingSink(collector, Integer.class);
+//        sink.setName("sink");
+//        loopOperator.outputConnectTo(sink);
+//
+//        return new RheemPlan(sink);
+//    }
 
     /**
      * Creates a {@link RheemPlan} with a {@link CollectionSource} that is fed into a {@link GlobalMaterializedGroupOperator}.
@@ -858,8 +858,7 @@ public class RheemPlans {
      * @throws SQLException
      */
     public static void prepareSqlite3Scenarios(Configuration configuration) throws SQLException {
-        try (Connection connection = Sqlite3.platform()
-                .createDatabaseDescriptor(configuration)
+        try (Connection connection = new ConnectionDatabase(configuration, "sqlite3")
                 .createJdbcConnection()) {
             final Statement statement = connection.createStatement();
             statement.addBatch("DROP TABLE IF EXISTS customer;");
@@ -880,7 +879,7 @@ public class RheemPlans {
     }
 
     public static RheemPlan sqlite3Scenario1(Collection<Record> collector) {
-        Sqlite3TableSource customers = new Sqlite3TableSource("customer");
+        TableSource customers = new TableSource("customer");
         LocalCallbackSink<Record> sink = LocalCallbackSink.createCollectingSink(collector, Record.class);
         customers.connectTo(0, sink, 0);
         return new RheemPlan(sink);
@@ -888,7 +887,7 @@ public class RheemPlans {
     }
 
     public static RheemPlan sqlite3Scenario2(Collection<Record> collector) {
-        Sqlite3TableSource customers = new Sqlite3TableSource("customer", "name", "age");
+        TableSource customers = new TableSource("customer", "name", "age");
         FilterOperator<Record> filter = new FilterOperator<>(
                 new PredicateDescriptor<>(
                         (PredicateDescriptor.SerializablePredicate<Record>) record -> (Integer) record.getField(1) >= 18,
@@ -906,7 +905,7 @@ public class RheemPlans {
     }
 
     public static RheemPlan sqlite3Scenario3(Collection<Record> collector) {
-        Sqlite3TableSource customers = new Sqlite3TableSource("customer", "name", "age");
+        TableSource customers = new TableSource("customer", "name", "age");
         FilterOperator<Record> filter = new FilterOperator<>(
                 new PredicateDescriptor<>(
                         (PredicateDescriptor.SerializablePredicate<Record>) record -> (Integer) record.getField(1) >= 18,

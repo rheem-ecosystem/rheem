@@ -8,20 +8,21 @@ import java.util.function.Consumer
 
 import org.junit.{Assert, Test}
 import io.rheem.basic.RheemBasics
+import io.rheem.basic.operators.{MapOperator, TableSource}
 import io.rheem.core.api.{Configuration, RheemContext}
 import io.rheem.core.function.FunctionDescriptor.ExtendedSerializablePredicate
 import io.rheem.core.function.{ExecutionContext, TransformationDescriptor}
 import io.rheem.core.util.fs.LocalFileSystem
-import io.rheem.java.Java
-import io.rheem.java.operators.JavaMapOperator
-import io.rheem.spark.Spark
-import io.rheem.sqlite3.Sqlite3
-import io.rheem.sqlite3.operators.Sqlite3TableSource
+import io.rheem.platforms.PlatformPlugins
 
 /**
   * Tests the Rheem API.
   */
 class ApiTest {
+
+  private val Sqlite3 = PlatformPlugins.SQLite
+  private val Java = PlatformPlugins.Java
+  private val Spark = PlatformPlugins.Spark
 
   @Test
   def testReadMapCollect(): Unit = {
@@ -54,9 +55,7 @@ class ApiTest {
     val inputDataSet = rheem.loadCollection(inputValues).withName("Load input values")
 
     // Add the custom operator.
-    val IndexedSeq(addedValues) = rheem.customOperator(new JavaMapOperator(
-      dataSetType[Int],
-      dataSetType[Int],
+    val IndexedSeq(addedValues) = rheem.customOperator(new MapOperator(
       new TransformationDescriptor(
         toSerializableFunction[Int, Int](_ + 2),
         basicDataUnitType[Int], basicDataUnitType[Int]
@@ -83,14 +82,12 @@ class ApiTest {
     // Build and execute a Rheem plan.
     val outputValues = rheem
       .loadCollection(inputValues).withName("Load input values")
-      .customOperator[Int](new JavaMapOperator(
-      dataSetType[Int],
-      dataSetType[Int],
-      new TransformationDescriptor(
-        toSerializableFunction[Int, Int](_ + 2),
-        basicDataUnitType[Int], basicDataUnitType[Int]
-      )
-    )).withName("Add 2")
+      .customOperator[Int](new MapOperator(
+        new TransformationDescriptor(
+          toSerializableFunction[Int, Int](_ + 2),
+          basicDataUnitType[Int], basicDataUnitType[Int]
+        )
+      )).withName("Add 2")
       .collect()
 
     // Check the outcome.
@@ -491,7 +488,7 @@ class ApiTest {
     configuration.setProperty("rheem.sqlite3.jdbc.url", "jdbc:sqlite:" + sqlite3dbFile.getAbsolutePath)
 
     try {
-      val connection: Connection = Sqlite3.platform.createDatabaseDescriptor(configuration).createJdbcConnection
+      val connection: Connection = new ConnectionDatabase(configuration, "sqlite3").createJdbcConnection
       try {
         val statement: Statement = connection.createStatement
         statement.addBatch("DROP TABLE IF EXISTS customer;")
@@ -506,10 +503,10 @@ class ApiTest {
     }
 
     // Set up RheemContext.
-    val rheem = new RheemContext(configuration).withPlugin(Java.basicPlugin).withPlugin(Sqlite3.plugin)
+    val rheem = new RheemContext(configuration).withPlugin(Java.basicPlugin).withPlugin(Sqlite3.basicPlugin)
 
     val result = rheem
-      .readTable(new Sqlite3TableSource("customer", "name", "age"))
+      .readTable(new TableSource("customer", "name", "age"))
       .filter(r => r.getField(1).asInstanceOf[Integer] >= 18, sqlUdf = "age >= 18").withTargetPlatforms(Java.platform)
       .projectRecords(Seq("name"))
       .map(_.getField(0).asInstanceOf[String])
@@ -529,7 +526,7 @@ class ApiTest {
     configuration.setProperty("rheem.sqlite3.jdbc.url", "jdbc:sqlite:" + sqlite3dbFile.getAbsolutePath)
 
     try {
-      val connection: Connection = Sqlite3.platform.createDatabaseDescriptor(configuration).createJdbcConnection
+      val connection: Connection = new ConnectionDatabase(configuration, "sqlite3").createJdbcConnection
       try {
         val statement: Statement = connection.createStatement
         statement.addBatch("DROP TABLE IF EXISTS customer;")
@@ -544,10 +541,10 @@ class ApiTest {
     }
 
     // Set up RheemContext.
-    val rheem = new RheemContext(configuration).withPlugin(Java.basicPlugin).withPlugin(Sqlite3.plugin)
+    val rheem = new RheemContext(configuration).withPlugin(Java.basicPlugin).withPlugin(Sqlite3.basicPlugin)
 
     val result = rheem
-      .readTable(new Sqlite3TableSource("customer", "name", "age"))
+      .readTable(new TableSource("customer", "name", "age"))
       .filter(r => r.getField(1).asInstanceOf[Integer] >= 18, sqlUdf = "age >= 18")
       .projectRecords(Seq("name")).withTargetPlatforms(Sqlite3.platform)
       .map(_.getField(0).asInstanceOf[String])
