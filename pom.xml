@@ -638,7 +638,6 @@
         <module>rheem-api</module>
 <!--  TODO Move the extensions and profiler to other repository      -->
 <!--        <module>rheem-profiler</module>-->
-<!--        <module>rheem-extensions</module>-->
         <module>rheem-platforms</module>
     </modules>
 </project>
