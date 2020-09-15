@@ -90,13 +90,6 @@
             </properties>
         </profile>
         <profile>
-            <!-- Build the distribution. -->
-            <id>distro</id>
-            <modules>
-                <module>rheem-distro</module>
-            </modules>
-        </profile>
-        <profile>
             <!-- Perform steps to deploy Rheem. -->
             <id>deployment</id>
             <build>
