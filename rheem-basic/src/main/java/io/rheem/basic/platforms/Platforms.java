@@ -1,4 +1,4 @@
-package io.rheem.platforms;
+package io.rheem.basic.platforms;
 
 import java.util.HashMap;
 import java.util.Map;

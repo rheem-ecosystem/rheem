@@ -627,6 +627,5 @@
     <modules>
         <module>rheem-core</module>
         <module>rheem-basic</module>
-        <module>rheem-platforms</module>
     </modules>
 </project>

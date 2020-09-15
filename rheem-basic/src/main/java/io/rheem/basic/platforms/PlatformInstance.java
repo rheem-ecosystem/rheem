@@ -1,4 +1,4 @@
-package io.rheem.platforms;
+package io.rheem.basic.platforms;
 
 import io.rheem.core.plugin.Plugin;
 import io.rheem.core.platform.Platform;

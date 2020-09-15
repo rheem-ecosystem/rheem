@@ -1,4 +1,4 @@
-package io.rheem.platforms;
+package io.rheem.basic.platforms;
 
 //TODO: put the documentation
 public class PlatformNotFound extends RuntimeException{
