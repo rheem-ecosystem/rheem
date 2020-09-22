@@ -6,7 +6,6 @@
         <groupId>io.rheem</groupId>
         <artifactId>rheem-build-parent</artifactId>
         <version>1.0.0-SNAPSHOT</version>
-        <relativePath>../rheem-build/rheem-build-parent</relativePath>
     </parent>
 
     <groupId>io.rheem</groupId>
