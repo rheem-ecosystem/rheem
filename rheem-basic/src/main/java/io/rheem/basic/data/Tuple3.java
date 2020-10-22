@@ -4,23 +4,24 @@ import io.rheem.core.api.exception.RheemException;
 
 import java.io.Serializable;
 
-/**
- * A type for tuples. Might be replaced by existing classes for this purpose, such as from the Scala library.
- */
-public class Tuple2<T0, T1> extends RheemTuple implements Serializable {
+public class Tuple3<T0, T1, T2> extends RheemTuple implements Serializable {
 
-    public final T0 field0;
+    private final T0 field0;
 
-    public final T1 field1;
+    private final T1 field1;
 
-    public Tuple2() {
+    private final T2 field2;
+
+    public Tuple3() {
         this.field0 = null;
         this.field1 = null;
+        this.field2 = null;
     }
 
-    public Tuple2(T0 field0, T1 field1) {
+    public Tuple3(T0 field0, T1 field1, T2 field2) {
         this.field0 = field0;
         this.field1 = field1;
+        this.field2 = field2;
     }
 
     public T0 getField0() {
@@ -31,9 +32,13 @@ public class Tuple2<T0, T1> extends RheemTuple implements Serializable {
         return this.field1;
     }
 
+    public T2 getField2() {
+        return this.field2;
+    }
+
     @Override
     public int arity() {
-        return 2;
+        return 3;
     }
 
     @Override
@@ -47,8 +52,12 @@ public class Tuple2<T0, T1> extends RheemTuple implements Serializable {
     /**
      * @return a new instance with the fields of this instance swapped
      */
-    public Tuple2<T1, T0> swap() {
-        return new Tuple2<>(this.field1, this.field0);
+    public Tuple3<T2, T1, T0> swap() {
+        return new Tuple3<>(
+            this.field2,
+            this.field1,
+            this.field0
+        );
     }
 
     @Override
@@ -56,6 +65,7 @@ public class Tuple2<T0, T1> extends RheemTuple implements Serializable {
         switch (index){
             case 0: return (T) this.field0;
             case 1: return (T) this.field1;
+            case 2: return (T) this.field2;
             default:
                 throw new RheemException(
                 String.format(
@@ -69,9 +79,10 @@ public class Tuple2<T0, T1> extends RheemTuple implements Serializable {
 
     @Override
     public RheemQuantum copy() {
-        return new Tuple2<>(
+        return new Tuple3<>(
             this.field0,
-            this.field1
+            this.field1,
+            this.field2
         );
     }
 }
