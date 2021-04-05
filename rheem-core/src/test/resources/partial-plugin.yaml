@@ -1,7 +1,0 @@
-platforms:
-  include:
-  - io.rheem.core.test.DummyPlatform.getInstance()
-
-mappings:
-  exclude:
-  - new io.rheem.core.mapping.test.TestSinkMapping()
