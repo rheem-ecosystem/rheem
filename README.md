@@ -1,4 +1,4 @@
-# Rheem has been transfer to Apache Incubator and rename as [Wayang](https://wayang.apache.org)
+# Rheem has been transfer to Apache Incubator and renamed as [Apache Wayang (incubating)](https://wayang.apache.org)
 
 <img src="./logo_rheem.png" style="width:200px"> ==> <img src="./logo_wayang.png" style="width:200px">
 
